@@ -1,0 +1,7 @@
+*.komodoproject
+.npmignore
+.travis.yml
+test/
+src/
+ts-temp/
+tools/
