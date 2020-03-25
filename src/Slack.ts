@@ -13,7 +13,7 @@ export class SlackClient {
 
     constructor (opts: { token: string, channelId: string }) {
         this.token = opts.token;
-        this.channelId = this.channelId;
+        this.channelId = opts.channelId;
     }
 
     @memd.deco.memoize()
@@ -40,6 +40,6 @@ export class SlackClient {
         await this.web.chat.postMessage({
             text: message,
             channel: this.channelId,
-          });
+        });
     }
 }

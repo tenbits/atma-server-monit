@@ -5,14 +5,15 @@
 declare module 'atma-server-monit' {
     import { LifecycleEvents } from 'atma-server';
     interface IMonitOptions {
-        directory: string;
-        slack: {
+        directory?: string;
+        slack?: {
             token: string;
             channelId: string;
         };
     }
     export namespace Monit {
         function start(events: LifecycleEvents, opts: IMonitOptions): void;
+        function flush(): void;
     }
     export {};
 }
