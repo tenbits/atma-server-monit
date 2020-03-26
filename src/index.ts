@@ -57,6 +57,9 @@ class Watcher {
             );
         });
         this.events.on('HandlerError', (event, req, res) => {
+            if (event.status === 404) {
+                return;
+            }
             if (this.add(event) === false) {
                 return;
             }
