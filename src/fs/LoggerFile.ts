@@ -17,10 +17,22 @@ export class LoggerFile {
     private _file: File;
     private _opts: ILoggerOpts;
 
+    static create (group: string, opts: ILoggerOpts) {
+        if (opts.directory.endsWith('/') === false) {
+            opts.directory += '/';
+        }
+        opts.directory += group;
+
+        let logger = new LoggerFile();
+        logger.init(opts);
+        return logger;
+    }
+
     write(message: string): void {
         if (this._file == null) {
             throw new Error('Call init with options first');
         }
+
         this._file.write(message);
 
         if (this._file.buffer.length > this._opts.messageBufferMax) {
@@ -65,9 +77,10 @@ export class LoggerFile {
                 break;
             }
         }
+        let lastPath = i > - 1 ? Path.resolve(directory, filename) : null;
 
         this._file = i > -1
-            ? new File(filename.replace(/\.\w+$/, ''), this._opts, true)
+            ? new File(lastPath, this._opts, true)
             : this.nextFile()
             ;
 
@@ -94,7 +107,7 @@ export class LoggerFile {
             this._file.flush();
 
         const d = new Date();
-        const filename = `${d.getTime()}_${this.switch_++}_${Formatter.format(d, 'dd-MM_hh')}.txt`;
+        const filename = `${ d.getTime() }_${ this.switch_++ }_${ Formatter(d, 'dd-MM_hh') }.txt`;
         const path = Path.resolve(this._opts.directory, filename);
         return new File(path, this._opts);
     }

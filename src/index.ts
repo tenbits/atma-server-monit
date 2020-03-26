@@ -1,5 +1,4 @@
 import { LifecycleEvents } from 'atma-server'
-import * as logger from 'atma-logger'
 import { SlackClient } from './Slack';
 import { LoggerFile } from './fs/LoggerFile';
 
@@ -20,7 +19,7 @@ export namespace Monit {
         watcher = new Watcher(events, opts);
     }
     export function flush () {
-        watcher?.logger.flush();
+        watcher?.flush();
     }
 }
 
@@ -29,34 +28,54 @@ class Watcher {
     messages: { date: Date, message: string }[] = []
 
     slack: SlackClient;
-    logger: LoggerFile;
+    loggers: {
+        start: LoggerFile
+        requests: LoggerFile
+        errors: LoggerFile
+    } 
     constructor (public events: LifecycleEvents, opts: IMonitOptions) {
         if (opts.slack) {
             this.slack = new SlackClient(opts.slack);
         }
         
-        this.logger = new LoggerFile();
-        this.logger.init({
+        const loggerOpts = {
             directory: opts.directory
-        });
+        };
+        this.loggers = {
+            start: LoggerFile.create('start', Object.assign({}, loggerOpts)),
+            requests: LoggerFile.create('requests', Object.assign({}, loggerOpts)),
+            errors: LoggerFile.create('errors', Object.assign({}, loggerOpts)),
+        };
         this.watch();
     }
 
     watch () {
         this.events.on('AppStart', (event) => {
             this.slack?.send(event.message);
-            this.logger.write(event.message);
+            this.loggers.start.write(
+                `${new Date().toISOString()}, ${event.message}, ${event.time}ms`
+            );
         });
         this.events.on('HandlerError', (event, req, res) => {
             if (this.add(event) === false) {
                 return;
             }
             this.slack?.send(event.message);
-            this.logger.write(event.message);
+            this.loggers.requests.write(
+                `${new Date().toISOString()}, ${event.message}`
+            );
         });
         this.events.on('HandlerSuccess', (event, req, res) => {
-            this.logger.write(event.message);
+            this.loggers.requests.write(
+                `${new Date().toISOString()}, ${event.status}, ${event.url}, ${event.time}ms, ${event.user}`
+            );
         });
+    }
+
+    flush () {
+        this.loggers.start.flush();
+        this.loggers.requests.flush();
+        this.loggers.errors.flush();
     }
 
     private add (event) {
