@@ -2,6 +2,7 @@ import { file_readSize, file_appendAsync, file_append, dir_ensure, dir_read, fil
 import { os_EndOfLine } from '../utils/os';
 import * as Path from 'path'
 import  * as Formatter from 'atma-formatter'
+import { date_getMidnight } from '../utils/date';
 
 export interface ILoggerOpts {
     directory: string
@@ -16,6 +17,8 @@ export class LoggerFile {
 
     private _file: File;
     private _opts: ILoggerOpts;
+    private _todayMid = date_getMidnight(new Date());
+    private _tomorrowMid = date_getMidnight(new Date(), 1);
 
     static create (group: string, opts: ILoggerOpts) {
         if (opts.directory.endsWith('/') === false) {
@@ -38,8 +41,16 @@ export class LoggerFile {
         if (this._file.buffer.length > this._opts.messageBufferMax) {
             this._file.flushAsync();
         }
+
         if (this._file.size >= this._opts.fileBytesMax) {
             this.nextFile();
+            return;
+        }
+        if (Date.now() > this._tomorrowMid) {
+            this._todayMid = this._tomorrowMid;
+            this._tomorrowMid = date_getMidnight(new Date(), 1);
+            this.nextFile();
+            return;
         }
     }
     flush () {
@@ -67,7 +78,7 @@ export class LoggerFile {
        
         dir_ensure(directory);
 
-        const rgx = /^\d+_/g;
+        const rgx = /^(\d+)_/g;
         let files = dir_read(directory).sort();
         let i = files.length;
         let filename: string;
@@ -78,12 +89,17 @@ export class LoggerFile {
             }
         }
         let lastPath = i > - 1 ? Path.resolve(directory, filename) : null;
-
-        this._file = i > -1
-            ? new File(lastPath, this._opts, true)
-            : this.nextFile()
-            ;
-
+        if (lastPath != null) {
+            let timestamp = Number(rgx.exec(filename)[1]);
+            if (timestamp <= this._todayMid) {
+                this._file = this.nextFile();
+            } else {
+                this._file = new File(lastPath, this._opts, true);
+            }
+        }
+        if (this._file == null) {
+            this._file = this.nextFile();
+        }
         if (this._file.size >= opts.fileBytesMax) {
             this.nextFile();
         }

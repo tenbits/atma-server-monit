@@ -1,16 +1,8 @@
 import { LifecycleEvents } from 'atma-server'
 import { SlackClient } from './Slack';
 import { LoggerFile } from './fs/LoggerFile';
+import { LifecycleEvent } from 'atma-server/HttpApplication/LifecycleEvents';
 
-interface IMonitOptions {
-    directory?: string,
-    slack?: {
-        // clientId: string
-        // clientSecret: string
-        token: string
-        channelId: string
-    }
-}
 
 export namespace Monit {
     let watcher: Watcher;
@@ -21,6 +13,18 @@ export namespace Monit {
     export function flush () {
         watcher?.flush();
     }
+    export function error (error: Error ) {
+        watcher?.writeError(error);
+    }
+}
+
+interface IMonitOptions {
+    directory?: string
+    slack?: {
+        token: string
+        channelId: string
+    }
+    filterForSlack?: (event: LifecycleEvent) => boolean
 }
 
 
@@ -33,7 +37,7 @@ class Watcher {
         requests: LoggerFile
         errors: LoggerFile
     } 
-    constructor (public events: LifecycleEvents, opts: IMonitOptions) {
+    constructor (public events: LifecycleEvents, public opts: IMonitOptions) {
         if (opts.slack) {
             this.slack = new SlackClient(opts.slack);
         }
@@ -57,22 +61,37 @@ class Watcher {
             );
         });
         this.events.on('HandlerError', (event, req, res) => {
-            if (event.status === 404) {
+            this.loggers.requests.write(
+                `${new Date().toISOString()}, ${event.status}, ${event.url}, ${event.time}ms, ${event.user ?? ''}, ${event.message}`
+            );
+            if (event.status <= 404) {
                 return;
             }
             if (this.add(event) === false) {
                 return;
             }
+            if (this.opts?.filterForSlack(event) === false) {
+                return;
+            }
             this.slack?.send(event.message);
-            this.loggers.requests.write(
-                `${new Date().toISOString()}, ${event.message}`
-            );
         });
         this.events.on('HandlerSuccess', (event, req, res) => {
             this.loggers.requests.write(
-                `${new Date().toISOString()}, ${event.status}, ${event.url}, ${event.time}ms, ${event.user}`
+                `${new Date().toISOString()}, ${event.status}, ${event.url}, ${event.time}ms, ${event.user ?? ''}`
             );
         });
+    }
+
+    writeError (error: Error) {
+        if (this.add(error) === false) {
+            return;
+        }
+        if (this.opts?.filterForSlack(<any> { error })) {
+            this.slack?.send(event.toString());
+        }
+        this.loggers.errors.write(
+            `${new Date().toISOString()}, ${Utils.serializeError(error)}`
+        );
     }
 
     flush () {
@@ -93,5 +112,18 @@ class Watcher {
         }
         this.messages.push(event.message);
         return true;
+    }
+}
+
+
+namespace Utils {
+    export function serializeError (error: Error) {
+        if (error.stack) {
+            return error.stack.replace(/\n/g, '\\\\n');
+        }
+        if (error.message) {
+            return error.message;
+        }
+        return String(error);
     }
 }

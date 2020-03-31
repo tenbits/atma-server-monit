@@ -1,6 +1,6 @@
 {
     "name": "atma-server-monit",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "Application Monitor Layer",
     "author": "Alex Kit (alex.kit@atmajs.com)",
     "main": "lib/index.js",
@@ -21,7 +21,7 @@
     "devDependencies": {
         "@types/node": "^10.17.17",
         "app-bundler": "0.0.83",
-        "atma-server": "^0.4.50",
+        "atma-server": "^0.4.51",
         "shellbee": "^0.5.2"
     },
     "app-bundler": {
