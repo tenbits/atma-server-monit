@@ -78,7 +78,7 @@ export class LoggerFile {
        
         dir_ensure(directory);
 
-        const rgx = /^(\d+)_/g;
+        const rgx = /^(\d+)_/;
         let files = dir_read(directory).sort();
         let i = files.length;
         let filename: string;
