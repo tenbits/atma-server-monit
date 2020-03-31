@@ -62,7 +62,7 @@ class Watcher {
         });
         this.events.on('HandlerError', (event, req, res) => {
             this.loggers.requests.write(
-                `${new Date().toISOString()}, ${event.status}, ${event.url}, ${event.time}ms, ${event.user ?? ''}, ${event.message}`
+                `${new Date().toISOString()}, ${event.status}, ${event.url}, ${event.time}ms, ${event.user ?? ''}, ${ Utils.serializeError(event.error ?? event.message)}`
             );
             if (event.status <= 404) {
                 return;
@@ -73,7 +73,7 @@ class Watcher {
             if (this.opts?.filterForSlack(event) === false) {
                 return;
             }
-            this.slack?.send(event.message);
+            this.slack?.send(event.error?.stack ?? event.message);
         });
         this.events.on('HandlerSuccess', (event, req, res) => {
             this.loggers.requests.write(
@@ -117,7 +117,10 @@ class Watcher {
 
 
 namespace Utils {
-    export function serializeError (error: Error) {
+    export function serializeError (error: Error | string) {
+        if (typeof error === 'string') {
+            return error.replace(/\n/g, '\\\\n');
+        }
         if (error.stack) {
             return error.stack.replace(/\n/g, '\\\\n');
         }
