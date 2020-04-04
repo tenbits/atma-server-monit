@@ -68,16 +68,16 @@ class Watcher {
             if (event.error) {
                 status = (event.error as any)?.statusCode ?? 500;
             }
-            if (status <= 404) {
+            if (status <= 404 || this.slack == null) {
                 return;
             }
             if (this.add(event) === false) {
                 return;
             }
-            if (this.opts?.filterForSlack(event) === false) {
+            if (this.opts?.filterForSlack?.(event) === false) {
                 return;
             }
-            this.slack?.send(event.error?.stack ?? event.message);
+            this.slack.send(event.error?.stack ?? event.message);
         });
         this.events.on('HandlerSuccess', (event, req, res) => {
             this.loggers.requests.write(
