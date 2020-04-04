@@ -64,7 +64,11 @@ class Watcher {
             this.loggers.requests.write(
                 `${new Date().toISOString()}, ${event.status}, ${event.url}, ${event.time}ms, ${event.user ?? ''}, ${ Utils.serializeError(event.error ?? event.message)}`
             );
-            if (event.status <= 404) {
+            let status = event.status;
+            if (event.error) {
+                status = (event.error as any)?.statusCode ?? 500;
+            }
+            if (status <= 404) {
                 return;
             }
             if (this.add(event) === false) {
