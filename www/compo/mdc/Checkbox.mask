@@ -1,0 +1,30 @@
+define Checkbox {
+    var value = null;
+
+    function getValue () {
+        return this.value;
+    }
+    function setValue (val) {
+        this.value = val;
+    }
+    
+    .mdc-form-field {
+        label {
+            .mdc-checkbox [style.verticalAlign]='middle' {
+                input .mdc-checkbox__native-control type="checkbox" {
+                    dualbind value='this.value' x-signal='dom:input';
+                }
+                .mdc-checkbox__background {
+                    <svg class="mdc-checkbox__checkmark"
+                        viewBox="0 0 24 24">
+                        <path class="mdc-checkbox__checkmark-path"
+                            fill="none"
+                            d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
+                    </svg>
+                    .mdc-checkbox__mixedmark;
+                }
+            }
+            '@attr.label'
+        }
+    }
+}

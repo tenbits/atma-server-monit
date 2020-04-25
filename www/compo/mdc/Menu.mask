@@ -1,0 +1,24 @@
+define Menu {
+
+    function renderEnd (els) {
+        this.menu = new mdc.menu.MDCMenu(els[0]);
+        this.menu.hoistMenuToBody();
+    }
+    function open () {
+        this.menu.open = true;
+    }
+    function close () {
+        this.menu.open = false;
+    }
+
+    .mdc-menu .mdc-menu-surface {
+        ul .mdc-list role="menu" aria-hidden="true" aria-orientation="vertical" tabindex="-1" {
+
+            @each (item) {
+                li .mdc-list-item role="menuitem" {
+                    @placeholder;
+                }
+            }
+        }
+    }
+}

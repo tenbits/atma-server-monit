@@ -38,7 +38,7 @@ UTest({
         }
         await Promise.all(data.map(append));
 
-        let content = await File.readAsync(path);
+        let content = await File.readAsync<string>(path);
         data.forEach(str => {
             let has = content.includes(str);
             eq_(has, true, `Should include ${str}`);
@@ -49,13 +49,10 @@ UTest({
         let filename = env.currentDir.combine(path).toLocalFile();
 
         function append (data) {
-            //return new Promise((resolve, reject) => {
-                
             return Shell.run({
-                    command: `node test/append ${data}`
-                });
-                
-            //});
+                command: `test/append ${data}`,
+                fork: true
+            });
         };
         if (await File.existsAsync(path)) {
             await File.removeAsync(path);

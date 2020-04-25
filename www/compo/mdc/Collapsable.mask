@@ -1,0 +1,46 @@
+import IconButton from './Button'
+import './Mdc.less'
+
+define Collapsable {
+    var meta = {
+        attributes: {
+            opened: {
+                default: false
+            }
+        }
+    };
+
+    slot private toggle () {
+        this.xOpened = !this.xOpened;
+    }
+
+    .mdc-collapsable  {
+        .mdc-collapsable-header {
+            
+            
+            button 
+                .mdc-button 
+                .@[attr.unelevated ? 'mdc-button--unelevated'] 
+                .@[attr.outlined ? 'mdc-button--outlined'] 
+                .@[attr.raised ? 'mdc-button--raised'] 
+
+                x-tap='toggle'
+
+            @[...attr]
+            
+            {
+                i.material-icons {
+                    +if (this.xOpened) {
+                        span > '@[attr.iconOpened || "keyboard_arrow_down"]'
+                    } else {
+                        span > '@[attr.iconClosed || "keyboard_arrow_right"]'
+                    }
+                }
+                span > ' @[attr.label]';
+            }
+        }
+        .mdc-collapsable-content.~[bind: this.xOpened ? "opened" : "closed"] {
+            @placeholder;
+        }
+    }
+}

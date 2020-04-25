@@ -1,0 +1,88 @@
+import CircularProgress from './CircularProgress'
+import Button from './Button'
+import MaterialIcon from './MaterialIcon'
+
+
+define ActivityButton {
+
+    var meta = {
+        attributes: {
+            busy: false,
+            icon: '',
+            label: null,
+            color: 'white'
+        }
+    }
+    function onAttributeSet (key, value) {
+        if (key === 'busy') {            
+            this.element.disabled = value;
+        }
+    }
+    
+    function renderEnd (els) {
+        let el = els[0];
+        this.ripple = mdc.ripple.MDCRipple.attachTo(el);
+        this.element = el;
+    }
+
+    button 
+        .mdc-button 
+        .@[attr.unelevated ? 'mdc-button--unelevated'] 
+        .@[attr.outlined ? 'mdc-button--outlined'] 
+        .@[attr.raised ? 'mdc-button--raised'] 
+
+        @[...attr]
+        
+        {
+            i.material-icons.mdc-button__icon aria-hidden='true' {
+                +switch (this.xBusy) {
+                    case (true) {
+                        CircularProgress color='@[attr.color]';
+                    }
+                    default {
+                        span > '@[attr.icon]'
+                    }
+                }
+            }
+            span .mdc-button__label {
+                '@[attr.label]'
+            }
+        }
+}
+
+define FabButton {
+    var meta = {
+        attributes: {
+            busy: false,
+            icon: '',
+            label: {
+                required: false,
+                default: '',
+            },
+            color: 'white'
+        }
+    }
+
+    button 
+        .mdc-fab 
+        .@[attr.label ? 'mdc-fab--extended' ]
+        @[...attr]
+    {
+        span .material-icons .mdc-fab__icon {
+            +switch (this.xBusy) {
+                case (true) {
+                    CircularProgress color='@[attr.color]';
+                }
+                default {
+                    span > '@[attr.icon]'
+                }
+            }
+        }
+
+        @if (attr.label) {
+            span .mdc-fab__label {
+                '@[attr.label]'
+            }
+        }
+    }
+}

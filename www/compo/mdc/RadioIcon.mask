@@ -1,0 +1,37 @@
+define RadioIcon {
+    var meta = {
+        attributes: {
+            checked: false
+        }
+    }
+    
+    i.material-icons {
+        +if (this.xChecked) {
+            span > 'radio_button_checked';
+        } else {
+            span > 'radio_button_unchecked';
+        }
+    }
+}
+
+define RadioIconButton as (.touch-action) {
+    var meta = {
+        attributes: {
+            checked: true
+        }
+    }
+
+    style scoped {
+        :host {
+            margin: 0 5px;
+        }
+        .mdc-radio-button-label {
+            margin: 0px 5px;
+            vertical-align: middle;
+        }
+    }
+    
+    RadioIcon checked="~[bind: this.xChecked ? true : false ]";
+    span.mdc-radio-button-label style='' > @placeholder
+
+}

@@ -69,7 +69,7 @@ export function file_appendAsync(path, str, callback) {
             if (error) {
                 exception_(path, error);
             }
-            Fs.close(fd, callback);
+            Fs.close(fd, () => callback?.());
         })
     });
 };

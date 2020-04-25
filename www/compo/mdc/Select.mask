@@ -1,0 +1,28 @@
+define Select as  (.mdc-select) {
+
+    var value = null;
+
+    function renderEnd (els) {
+        this.select = new mdc.select.MDCSelect(els[0]);
+    }
+    slot private objectChanged (sender, val) {
+        if (this.select) {
+            this.select.value = val;
+        }
+    }
+    function getValue () {
+        return this.value;
+    }
+    function setValue (val) {
+        this.value = val;
+    }
+
+   
+    i .mdc-select__dropdown-icon;
+    select .mdc-select__native-control {
+        dualbind value='this.value' x-signal='object: objectChanged;dom: input';
+        @placeholder;
+    }
+    label .mdc-floating-label > '@[attr.label]'
+    .mdc-line-ripple;
+}

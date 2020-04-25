@@ -1,0 +1,9 @@
+{
+    "name": "atma-io",
+    "main": "./types/index.d.ts",
+    "global": true,
+    "globalDependencies": {
+        "assertion": "github:atmajs/assertion",
+        "atma-utest": "github:atmajs/utest"
+    }
+}

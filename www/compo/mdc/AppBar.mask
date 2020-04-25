@@ -1,0 +1,22 @@
+define AppBar {
+    header .mdc-top-app-bar {
+        .mdc-top-app-bar__row {
+            section .mdc-top-app-bar__section .mdc-top-app-bar__section--align-start {
+                
+                @navigation .material-icons .mdc-icon-button .mdc-top-app-bar__navigation-icon as=button;
+                @title .mdc-top-app-bar__title as=span;
+            }
+            section .mdc-top-app-bar__section .mdc-top-app-bar__section--align-end {
+                
+                @sectionEnd optional;
+                @each (actionItem) optional {
+                    @actionItem .material-icons .mdc-top-app-bar__action-item as=button;
+                }
+            }
+        }
+    }
+
+    let AppBar:action as (button .material-icons .mdc-top-app-bar__action-item) {
+        @placeholder;
+    }
+}

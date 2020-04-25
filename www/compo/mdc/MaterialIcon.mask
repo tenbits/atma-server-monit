@@ -1,0 +1,3 @@
+define MaterialIcon as (i.material-icons aria-hidden='true') {
+    @placeholder;
+}

@@ -1,0 +1,7 @@
+import './CircularProgress.less';
+
+define CircularProgress as (svg .circular viewBox="0 0 100 100")  {
+
+    circle .path cx="50" cy="50" r="40" fill="none" stroke-width="@[attr.lineWidth || 15]" stroke-miterlimit="40" stroke="@[attr.color || 'cyan']";
+
+}

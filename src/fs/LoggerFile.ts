@@ -3,6 +3,8 @@ import { os_EndOfLine } from '../utils/os';
 import * as Path from 'path'
 import  * as Formatter from 'atma-formatter'
 import { date_getMidnight } from '../utils/date';
+import { class_Uri } from 'atma-utils';
+
 
 export interface ILoggerOpts {
     directory: string
@@ -10,43 +12,57 @@ export interface ILoggerOpts {
     fileBytesMax?: number
     fileMessagesMax?: number
     messageBufferMax?: number
+    fields?: ICsvColumn[]
+}
+export interface ICsvColumn {
+    name: string,
+    type: 'string' | 'number' | 'date'
+    
+    summable?: boolean
+    groupable?: boolean
+    sortable?: boolean
+    filterable?: boolean
 }
 
 export class LoggerFile {
-    private switch_ = 0
+    public directory: string;
+    public opts: ILoggerOpts;
 
+    /** Filecounter, in case we have to create multiple files for a day due to filesize limit */
+    private _idx = 0
     private _file: File;
-    private _opts: ILoggerOpts;
     private _todayMid = date_getMidnight(new Date());
     private _tomorrowMid = date_getMidnight(new Date(), 1);
 
-    static create (group: string, opts: ILoggerOpts) {
-        if (opts.directory.endsWith('/') === false) {
-            opts.directory += '/';
-        }
-        opts.directory += group;
+    static create (key: string, opts: ILoggerOpts) {
 
+        opts.directory = class_Uri.combine(opts.directory, key, '/');
+        
         let logger = new LoggerFile();
         logger.init(opts);
         return logger;
     }
 
+    protected constructor () {}
+
     write(message: string): void {
         if (this._file == null) {
-            throw new Error('Call init with options first');
+            throw new Error('Create the instance via static::create');
         }
 
         this._file.write(message);
 
-        if (this._file.buffer.length > this._opts.messageBufferMax) {
+        if (this._file.buffer.length > this.opts.messageBufferMax) {
             this._file.flushAsync();
         }
 
-        if (this._file.size >= this._opts.fileBytesMax) {
+        if (this._file.size >= this.opts.fileBytesMax) {
+            this._idx++;
             this.nextFile();
             return;
         }
-        if (Date.now() > this._tomorrowMid) {
+        if (Date.now() >= this._tomorrowMid) {
+            console.log('NEXT', Date.now(), this._tomorrowMid);
             this._todayMid = this._tomorrowMid;
             this._tomorrowMid = date_getMidnight(new Date(), 1);
             this.nextFile();
@@ -54,10 +70,10 @@ export class LoggerFile {
         }
     }
     flush () {
-        this._file.flush();
+        this._file.flushSync();
     }
-    init (opts: ILoggerOpts) {
-        this._opts = opts;
+    protected init (opts: ILoggerOpts) {
+        this.opts = opts;
         if (opts.directory.startsWith('./')) {
             opts.directory = Path.resolve(process.cwd(), opts.directory);
         }
@@ -78,7 +94,10 @@ export class LoggerFile {
        
         dir_ensure(directory);
 
-        const rgx = /^(\d+)_/;
+        this.directory = directory;
+        console.log(directory);
+
+        const rgx = /^(\d+)_((\d{1,3})_)?/;
         let files = dir_read(directory).sort();
         let i = files.length;
         let filename: string;
@@ -89,43 +108,49 @@ export class LoggerFile {
             }
         }
         let lastPath = i > - 1 ? Path.resolve(directory, filename) : null;
-        if (lastPath != null) {
-            let timestamp = Number(rgx.exec(filename)[1]);
-            if (timestamp <= this._todayMid) {
+        if (lastPath != null && rgx.test(filename)) {
+            let match = rgx.exec(filename);
+
+            let idx = Number(match[3] ?? 1);
+            let timestamp = Number(match[1]);
+            if (timestamp <= this._todayMid || timestamp >= this._tomorrowMid) {
+                this._idx = idx;
                 this._file = this.nextFile();
             } else {
-                this._file = new File(lastPath, this._opts, true);
+                this._file = new File(lastPath, this.opts, true);
             }
         }
         if (this._file == null) {
             this._file = this.nextFile();
         }
         if (this._file.size >= opts.fileBytesMax) {
+            this._idx++;
             this.nextFile();
         }
         if (files.length >= opts.fileCountMax) {
             files
                 .slice(0, files.length - opts.fileCountMax + 1)
                 .forEach(function (filename) {
-
                     file_remove(Path.resolve(directory, filename));
                 });
         }
 
         const onExit = require('signal-exit');
         onExit(() => {
-            this._file?.flush();
+            this._file?.flushSync();
         });
     }
 
     private nextFile() {
-        if (this._file != null)
-            this._file.flush();
+        if (this._file != null) {
+            this._file.flushSync();
+        }
 
         const d = new Date();
-        const filename = `${ d.getTime() }_${ this.switch_++ }_${ Formatter(d, 'dd-MM_hh') }.txt`;
-        const path = Path.resolve(this._opts.directory, filename);
-        return new File(path, this._opts);
+        // TIMESTAMP_FILECOUNTER_READABLETIME
+        const filename = `${ d.getTime() }_${this._idx}__${Formatter(d, 'MM-dd')}.csv`;
+        const path = Path.resolve(this.opts.directory, filename);
+        return new File(path, this.opts);
     }
 }
 
@@ -138,13 +163,12 @@ class File {
     listeners = []
 
     constructor(public path: string, public opts: ILoggerOpts, shouldReadStats = false) {
-
+        // read file size to ensure we are under the file size limit (in opts).
         this.size = shouldReadStats
             ? file_readSize(this.path)
             : 0
             ;
     }
-
     write (message) {
         this.size += message.length + os_EndOfLine.length;
         this.buffer.push(message);
@@ -157,7 +181,7 @@ class File {
         }
         file_appendAsync(this.path, str, cb);
     }
-    flush() {
+    flushSync() {
         const str = this.getBuffer();
         if (str == null) {
             return;

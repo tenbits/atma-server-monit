@@ -7,7 +7,8 @@
     "license": "MIT",
     "scripts": {
         "build": "app-bundler && npm run build-dts",
-        "build-debug": "app-bundler --inspect-brk",
+        "watch": "app-bundler --watch",
+        "example": "node examples/server --TEST --debug",
         "release": "echo atma pub -m \"Message\"",
         "build-dts": "tsc --version && tsc -p tsconfig-build.json && atma run tools/build-dts"
     },
@@ -16,13 +17,15 @@
         "url": "https://github.com/tenbits/atma-loader-ts"
     },
     "peerDependencies": {
-        "atma-server": "^0.4.50"
+        "atma-server": "^0.4.62"
     },
     "devDependencies": {
         "@types/node": "^10.17.17",
         "app-bundler": "0.0.83",
-        "atma-server": "^0.4.51",
-        "shellbee": "^0.5.2"
+        "atma-io-middleware-yml": "^1.1.25",
+        "atma-loader-less": "^1.1.5",
+        "atma-server": "^0.4.64",
+        "shellbee": "^0.5.4"
     },
     "app-bundler": {
         "file": "src/index.ts",
@@ -54,7 +57,8 @@
     },
     "atma": {
         "plugins": [
-            "atma-loader-ts"
+            "atma-loader-ts",
+            "atma-loader-less"
         ],
         "settings": {
             "include": {
@@ -66,6 +70,8 @@
             "atma-loader-ts": {
                 "typescript": {
                     "compilerOptions": {
+                        "target": "es6",
+                        "module": "CommonJS",
                         "#if (TEST)": {
                             "module": "AMD"
                         }
@@ -78,6 +84,8 @@
         "@slack/web-api": "^5.8.0",
         "atma-formatter": "^0.8.15",
         "atma-loader-ts": "^1.1.12",
+        "atma-utils": "^0.1.37",
+        "class-json": "^0.2.88",
         "dts-bundle": "^0.7.3",
         "memd": "^0.2.84",
         "signal-exit": "^3.0.2"

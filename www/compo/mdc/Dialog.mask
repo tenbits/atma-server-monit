@@ -1,0 +1,37 @@
+define Dialog as (.mdc-dialog) {
+
+    
+    function renderEnd (els) {
+        let el = els[0];
+        this.dialog = new mdc.dialog.MDCDialog(el);
+        this.frame = null;
+    }
+
+    function open () {
+
+        //this.frame && cancelAnimationFrame(this.frame);
+        this.frame = setTimeout(() => {
+            this.dialog.open();
+        }, 16);
+    }
+    function close () {
+        this.dialog.close();
+    }
+    slot private close () {
+        this.close();
+    }
+
+
+    .mdc-dialog__container > .mdc-dialog__surface style='@[attr.fullHeight ? "height: calc(100vh - 32px);"]' {
+        h2 .mdc-dialog__title > @head;
+        .mdc-dialog__content {
+            @body;              
+        }    
+        
+        footer .mdc-dialog__actions {
+            @footer;
+        }
+    }
+    .mdc-dialog__scrim;
+
+}

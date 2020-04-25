@@ -1,0 +1,25 @@
+{
+    "private": true,
+    "atma": {
+        "plugins": [
+            "atma-loader-ts",
+            "atma-loader-less"
+        ],
+        "settings": {
+            "include": {
+                "amd": true,
+                "extentionDefault": {
+                    "js": "ts"
+                }
+            },
+            "atma-loader-ts": {
+                "typescript": {
+                    "compilerOptions": {
+                        "target": "es6",
+                        "module": "AMD"
+                    }
+                }
+            }
+        }
+    }
+}

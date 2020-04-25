@@ -10,6 +10,7 @@ export class SlackClient {
     token: string
     channelId: string
     private isReady = false
+    private messages: { date: Date, message: string }[] = []
 
     constructor (opts: { token: string, channelId: string }) {
         this.token = opts.token;
@@ -34,6 +35,9 @@ export class SlackClient {
 
     @memd.deco.debounce(500)
     async send (message: string) {
+        if (this.wasSendShortly(message)) {
+
+        }
         if (this.isReady === false) {
             await this.login();
         }
@@ -41,5 +45,24 @@ export class SlackClient {
             text: message,
             channel: this.channelId,
         });
+    }
+
+    private wasSendShortly (message: string) {
+    
+        for (let i = 0; i < this.messages.length; i++) {
+            if (this.messages[i].message === message) {
+                return true;
+            }
+        }
+
+        let bufferCount = 20;
+        let remove = this.messages.length - bufferCount;
+        // keeps buffering between [bufferCount, bufferCount * 2]
+        if (remove > bufferCount * 2) {
+            this.messages.splice(0, remove);
+        }
+
+        this.messages.push({ date: new Date(), message });
+        return true;
     }
 }

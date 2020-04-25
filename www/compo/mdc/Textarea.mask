@@ -1,0 +1,42 @@
+define Textarea {
+    var value = null;
+
+    function renderEnd (els) {
+       this.textField = new mdc.textField.MDCTextField(els[0]);        
+    }
+
+    slot private objectChanged (sender, val) {
+        if (this.textField) {
+            this.textField.value = val;
+        }
+    }
+    function getValue () {
+        return this.value;
+    }
+    function setValue (val) {
+        this.value = val;
+        if (this.textField) {
+            this.textField.value = val;
+        }
+    }
+
+    .mdc-text-field .mdc-text-field--textarea {
+        textarea name="textarea~[this.ID]" .mdc-text-field__input @[...attr] {
+            dualbind value='this.value' x-signal='object: objectChanged;dom: input' change-event='input';
+        }
+
+        .mdc-notched-outline{
+            .mdc-notched-outline__leading;
+            .mdc-notched-outline__notch {
+                label for="textarea~[this.ID]" .mdc-floating-label > '@[attr.label]'
+            }
+            .mdc-notched-outline__trailing;
+        }
+    }
+    
+    @if (attr.hint) {
+        .mdc-text-field-helper-line {
+            .mdc-text-field-helper-text > '@[attr.hint]'
+        }
+    }
+}

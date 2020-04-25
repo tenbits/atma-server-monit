@@ -1,0 +1,12 @@
+import LogViewerCtr from './LogViewerCtr.ts';
+import './LogViewer.less'
+
+import AppBar from '@mdc/AppBar'
+
+define LogViewer extends LogViewerCtr {
+
+    AppBar {
+        @navigation x-tap='goHome' > 'person'
+        @title > 'Logs'
+    }
+}

@@ -1,0 +1,43 @@
+define Input {
+    var value = null;
+
+    function renderEnd (els) {
+        this.textField = new mdc.textField.MDCTextField(els[0]);
+    }
+    slot private objectChanged (sender, val) {
+        if (this.textField) {
+            this.textField.value = val;
+        }
+    }
+    slot private clearInput () {
+        this.value = '';
+        this.emitOut('input', '');
+    }
+    function getValue () {
+        return this.value;
+    }
+    function setValue (val) {
+        this.value = val;
+        if (this.textField) {
+            this.textField.value = val;
+        }
+    }
+
+    .mdc-text-field 
+    .@[after ? "mdc-text-field--with-trailing-icon"]
+    .@[before ? "mdc-text-field--with-leading-icon"] 
+    @[...attr] {
+        @before optional;
+        input.mdc-text-field__input name="input~[this.ID]"  @[...attr] autocomplete="off" x-press='esc: clearInput' {
+            dualbind value='this.value' x-signal='object: objectChanged;dom: input';
+        }
+        @after optional;
+        label for="input~[this.ID]" .mdc-floating-label > '@[attr.label]'
+        .mdc-line-ripple;
+    }
+    @if (attr.hint) {
+        .mdc-text-field-helper-line {
+            .mdc-text-field-helper-text > '@[attr.hint]'
+        }
+    }
+}

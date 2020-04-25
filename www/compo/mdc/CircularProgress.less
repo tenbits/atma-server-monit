@@ -1,0 +1,36 @@
+.circular {
+    animation: rotate 2s linear infinite;
+    position: relative;
+    width: 100%;
+    display: inline-block;
+    // check wooprofio/history search button
+    vertical-align: top;
+}
+
+.path {
+    stroke-dasharray: 1, 400;
+    stroke-dashoffset: 0;
+    animation: dash 1.5s ease-in-out infinite;
+    stroke-linecap: round;
+    
+}
+
+@keyframes rotate {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+@keyframes dash {
+    0%{
+        stroke-dasharray: 2,400;
+        stroke-dashoffset: 0;
+    }
+    50%{
+        stroke-dasharray: 178,400;
+        stroke-dashoffset: -70;
+    }
+    100%{
+        stroke-dasharray: 178,400;
+        stroke-dashoffset: -248;
+    }
+}

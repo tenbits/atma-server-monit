@@ -1,0 +1,31 @@
+define Button {
+    
+    function renderEnd (els) {
+        let el = els[0];
+        this.ripple = mdc.ripple.MDCRipple.attachTo(el);
+        this.element = el;
+    }
+
+    button 
+        .mdc-button 
+        .@[attr.unelevated ? 'mdc-button--unelevated'] 
+        .@[attr.outlined ? 'mdc-button--outlined'] 
+        .@[attr.raised ? 'mdc-button--raised'] 
+
+        @[...attr]
+        
+        {
+            @placeholder;
+        }
+}
+
+define IconButton {
+    
+    function renderEnd (els) {
+        let el = els[0];
+        this.ripple = new mdc.ripple.MDCRipple(el);
+        this.ripple.unbounded = true;
+    }
+
+    button .mdc-icon-button .material-icons @[...attr] > @placeholder
+}
