@@ -5,3 +5,4 @@ test/
 src/
 ts-temp/
 tools/
+www/node_modules
