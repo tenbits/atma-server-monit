@@ -17,7 +17,7 @@ export interface ILoggerOpts {
 export interface ICsvColumn {
     name: string,
     type: 'string' | 'number' | 'date'
-    
+
     summable?: boolean
     groupable?: boolean
     sortable?: boolean
@@ -37,7 +37,7 @@ export class LoggerFile {
     static create (key: string, opts: ILoggerOpts) {
 
         opts.directory = class_Uri.combine(opts.directory, key, '/');
-        
+
         let logger = new LoggerFile();
         logger.init(opts);
         return logger;
@@ -62,7 +62,6 @@ export class LoggerFile {
             return;
         }
         if (Date.now() >= this._tomorrowMid) {
-            console.log('NEXT', Date.now(), this._tomorrowMid);
             this._todayMid = this._tomorrowMid;
             this._tomorrowMid = date_getMidnight(new Date(), 1);
             this.nextFile();
@@ -91,11 +90,10 @@ export class LoggerFile {
         }
 
         let directory = opts.directory;
-       
+
         dir_ensure(directory);
 
         this.directory = directory;
-        console.log(directory);
 
         const rgx = /^(\d+)_((\d{1,3})_)?/;
         let files = dir_read(directory).sort();

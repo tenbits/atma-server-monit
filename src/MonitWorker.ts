@@ -1,9 +1,8 @@
 import { SlackClient } from './Slack';
-import { LoggerFile } from './fs/LoggerFile';
+import { LoggerFile, ILoggerOpts } from './fs/LoggerFile';
 import { Csv } from './utils/csv';
 import { LifecycleEvent, LifecycleEvents } from 'atma-server/HttpApplication/LifecycleEvents';
 import { Err } from './utils/err';
-import { ILoggerOpts } from 'atma-server-monit/fs/LoggerFile';
 
 
 export interface IMonitOptions {
@@ -15,21 +14,21 @@ export interface IMonitOptions {
     filterForSlack?: (event: LifecycleEvent) => boolean
 }
 
-export class Monit {
- 
+export class MonitWorker {
+
     slack: SlackClient;
     loggers: {
         start: LoggerFile
         requests: LoggerFile
         errors: LoggerFile
-        
+
         [name: string]: LoggerFile
-    } 
+    }
     constructor (public events: LifecycleEvents, public opts: IMonitOptions) {
         if (opts.slack) {
             this.slack = new SlackClient(opts.slack);
         }
-        
+
         const loggerOpts = {
             directory: opts.directory
         };

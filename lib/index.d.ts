@@ -5,18 +5,49 @@
 //   ../@slack/web-api
 
 declare module 'atma-server-monit' {
-    import { Application } from 'atma-server';
-    import { IMonitOptions } from 'atma-server-monit/Watcher';
+    import { LoggerFile } from 'atma-server-monit/fs/LoggerFile'; 
+     import { Application } from 'atma-server';
+    import { IMonitOptions } from 'atma-server-monit/MonitWorker';
+    import { ILoggerOpts } from 'atma-server-monit/fs/LoggerFile';
     export namespace Monit {
-        function start(app: Application, opts: IMonitOptions): void;
-        function flush(): void;
-        function error(error: Error): void;
+            function start(app: Application, opts: IMonitOptions): void;
+            function createChannel(name: string, opts?: ILoggerOpts): LoggerFile;
+            function flush(): void;
+            function error(error: Error): void;
     }
 }
 
-declare module 'atma-server-monit/Watcher' {
+declare module 'atma-server-monit/fs/LoggerFile' {
+    export interface ILoggerOpts {
+        directory: string;
+        fileCountMax?: number;
+        fileBytesMax?: number;
+        fileMessagesMax?: number;
+        messageBufferMax?: number;
+        fields?: ICsvColumn[];
+    }
+    export interface ICsvColumn {
+        name: string;
+        type: 'string' | 'number' | 'date';
+        summable?: boolean;
+        groupable?: boolean;
+        sortable?: boolean;
+        filterable?: boolean;
+    }
+    export class LoggerFile {
+        directory: string;
+        opts: ILoggerOpts;
+        static create(key: string, opts: ILoggerOpts): LoggerFile;
+        protected constructor();
+        write(message: string): void;
+        flush(): void;
+        protected init(opts: ILoggerOpts): void;
+    }
+}
+
+declare module 'atma-server-monit/MonitWorker' {
     import { SlackClient } from 'atma-server-monit/Slack';
-    import { LoggerFile } from 'atma-server-monit/fs/LoggerFile';
+    import { LoggerFile, ILoggerOpts } from 'atma-server-monit/fs/LoggerFile';
     import { LifecycleEvent, LifecycleEvents } from 'atma-server/HttpApplication/LifecycleEvents';
     export interface IMonitOptions {
         directory?: string;
@@ -26,7 +57,7 @@ declare module 'atma-server-monit/Watcher' {
         };
         filterForSlack?: (event: LifecycleEvent) => boolean;
     }
-    export class Watcher {
+    export class MonitWorker {
         events: LifecycleEvents;
         opts: IMonitOptions;
         slack: SlackClient;
@@ -37,7 +68,7 @@ declare module 'atma-server-monit/Watcher' {
             [name: string]: LoggerFile;
         };
         constructor(events: LifecycleEvents, opts: IMonitOptions);
-        createChannel(name: string): LoggerFile;
+        createChannel(name: string, opts?: ILoggerOpts): LoggerFile;
         watch(events: LifecycleEvents): void;
         writeError(error: Error): void;
         flush(): void;
@@ -59,32 +90,6 @@ declare module 'atma-server-monit/Slack' {
         });
         login(): Promise<void>;
         send(message: string): Promise<void>;
-    }
-}
-
-declare module 'atma-server-monit/fs/LoggerFile' {
-    export interface ILoggerOpts {
-        directory: string;
-        fileCountMax?: number;
-        fileBytesMax?: number;
-        fileMessagesMax?: number;
-        messageBufferMax?: number;
-        columns?: ICsvColumn[];
-    }
-    export interface ICsvColumn {
-        name: string;
-        type: 'string' | 'number' | 'date';
-        summable?: boolean;
-        groupable?: boolean;
-        sortable?: boolean;
-        filterable?: boolean;
-    }
-    export class LoggerFile {
-        directory: string;
-        static create(group: string, opts: ILoggerOpts): LoggerFile;
-        write(message: string): void;
-        flush(): void;
-        init(opts: ILoggerOpts): void;
     }
 }
 

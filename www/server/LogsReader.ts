@@ -1,7 +1,7 @@
-import { Monit } from '../../src/Monit';
+import { MonitWorker } from '../../src/MonitWorker';
 
 export class LogsReader {
-    constructor (public monit: Monit) {
+    constructor (public monit: MonitWorker) {
 
     }
 

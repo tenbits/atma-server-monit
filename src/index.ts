@@ -1,21 +1,21 @@
 import { Application, LifecycleEvents, StaticContent } from 'atma-server'
-import { Monit, IMonitOptions } from './Monit';
-import { ILoggerOpts } from 'atma-server-monit/fs/LoggerFile';
+import { MonitWorker, IMonitOptions } from './MonitWorker';
+import { ILoggerOpts } from './fs/LoggerFile';
 
 
-export namespace MonitFactory {
-    let monit: Monit;
+export namespace Monit {
+    let monit: MonitWorker;
 
     export function start (app: Application, opts: IMonitOptions) {
-        monit = new Monit(app.lifecycle, opts);
+        monit = new MonitWorker(app.lifecycle, opts);
 
-        let base = __dirname.replace(/[^\/]+\/?$/, 'www/');
+        let base = __dirname.replace(/\\/g, '/').replace(/[^\/]+\/?$/, 'www/');
         let subApp = new Application({
             base,
             configs: null,
             config: {
                 service: {
-                    endpoints: './endpoints/'
+                    endpoints: base + 'endpoints/'
                 }
             },
         });
