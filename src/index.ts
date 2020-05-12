@@ -9,7 +9,7 @@ export namespace Monit {
     export function start (app: Application, opts: IMonitOptions) {
         monit = new MonitWorker(app.lifecycle, opts);
 
-        let base = __dirname.replace(/\\/g, '/').replace(/[^\/]+\/?$/, 'www/');
+        let base = 'file://' + __dirname.replace(/\\/g, '/').replace(/[^\/]+\/?$/, 'www/');
         let subApp = new Application({
             base,
             configs: null,

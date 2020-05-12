@@ -96,7 +96,10 @@ export class MonitWorker {
         this.watch(events);
     }
 
-    createChannel (name: string, opts?: ILoggerOpts): LoggerFile {
+    createChannel (name: string, opts?: Partial<ILoggerOpts>): LoggerFile {
+        if (name in this.loggers) {
+            return this.loggers[name];
+        }
         return this.loggers[name] = LoggerFile.create(name, Object.assign({
             directory: this.opts.directory
         }, opts ?? {}));
@@ -123,11 +126,11 @@ export class MonitWorker {
             if (this.opts?.filterForSlack?.(event) === false) {
                 return;
             }
-            this.slack.send(event.error?.stack ?? event.message);
+            this.slack.send(event.message ?? event.error?.stack ?? String(event.error));
         });
         events.on('HandlerSuccess', (event, req, res) => {
             this.loggers.requests.write(
-                `${new Date().toISOString()}, ${event.status},  ${event.method}, ${Csv.escape(event.url)}, ${event.time}ms, ${event.user ?? ''}`
+                `${new Date().toISOString()}, ${event.status}, ${event.method}, ${Csv.escape(event.url)}, ${event.time}ms, ${event.user ?? ''}`
             );
         });
     }
@@ -141,6 +144,7 @@ export class MonitWorker {
         }
     }
 
+    /** Flush all buffered content to disk */
     flush () {
         for (let key in this.loggers) {
             this.loggers[key].flush();

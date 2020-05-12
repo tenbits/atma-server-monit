@@ -1,7 +1,10 @@
 export namespace Csv {
     export function escape (str: string) {
-        
-        str = str.replace(/\n/g, '\\\\n')
+        if (typeof str === 'number') {
+            return str;
+        }
+
+        str = String(str).replace(/\n/g, '\\\\n')
 
         if (str.includes(',') === false) {
             return str;

@@ -39,6 +39,7 @@ declare module 'atma-server-monit/fs/LoggerFile' {
         opts: ILoggerOpts;
         static create(key: string, opts: ILoggerOpts): LoggerFile;
         protected constructor();
+        writeRow(cells: any[]): void;
         write(message: string): void;
         flush(): void;
         protected init(opts: ILoggerOpts): void;
@@ -68,9 +69,10 @@ declare module 'atma-server-monit/MonitWorker' {
             [name: string]: LoggerFile;
         };
         constructor(events: LifecycleEvents, opts: IMonitOptions);
-        createChannel(name: string, opts?: ILoggerOpts): LoggerFile;
+        createChannel(name: string, opts?: Partial<ILoggerOpts>): LoggerFile;
         watch(events: LifecycleEvents): void;
         writeError(error: Error): void;
+        /** Flush all buffered content to disk */
         flush(): void;
     }
 }

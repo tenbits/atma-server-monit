@@ -36,7 +36,7 @@ export class SlackClient {
     @memd.deco.debounce(500)
     async send (message: string) {
         if (this.wasSendShortly(message)) {
-
+            return;
         }
         if (this.isReady === false) {
             await this.login();
@@ -48,7 +48,7 @@ export class SlackClient {
     }
 
     private wasSendShortly (message: string) {
-    
+
         for (let i = 0; i < this.messages.length; i++) {
             if (this.messages[i].message === message) {
                 return true;

@@ -4,6 +4,7 @@ import * as Path from 'path'
 import  * as Formatter from 'atma-formatter'
 import { date_getMidnight } from '../utils/date';
 import { class_Uri } from 'atma-utils';
+import { Csv } from '../utils/csv';
 
 
 export interface ILoggerOpts {
@@ -45,6 +46,30 @@ export class LoggerFile {
 
     protected constructor () {}
 
+    writeRow (cells: any[]) {
+        let fields = this.opts.fields;
+        if (fields == null) {
+            let row = cells.map(Csv.escape).join(', ');
+            this.write(row);
+            return;
+        }
+        let row = '';
+        for (let i = 0; i < fields.length; i++) {
+            if (i !== 0) row += ', ';
+
+            let val = cells[i];
+            if (val instanceof Date) {
+                row += val.toISOString();
+                continue;
+            }
+            if (typeof val === 'number') {
+                row += val;
+                continue;
+            }
+            row += Csv.escape(val);
+        }
+        this.write(row);
+    }
     write(message: string): void {
         if (this._file == null) {
             throw new Error('Create the instance via static::create');
