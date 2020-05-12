@@ -126,7 +126,12 @@ export class MonitWorker {
             if (this.opts?.filterForSlack?.(event) === false) {
                 return;
             }
-            this.slack.send(event.message ?? event.error?.stack ?? String(event.error));
+            let message = event.message;
+            let stack = event.error?.stack;
+            if (stack) {
+                message += "\n" + "```" + stack + "```";
+            }
+            this.slack.send(message);
         });
         events.on('HandlerSuccess', (event, req, res) => {
             this.loggers.requests.write(

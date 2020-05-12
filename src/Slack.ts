@@ -54,15 +54,13 @@ export class SlackClient {
                 return true;
             }
         }
-
         let bufferCount = 20;
         let remove = this.messages.length - bufferCount;
         // keeps buffering between [bufferCount, bufferCount * 2]
         if (remove > bufferCount * 2) {
             this.messages.splice(0, remove);
         }
-
         this.messages.push({ date: new Date(), message });
-        return true;
+        return false;
     }
 }
