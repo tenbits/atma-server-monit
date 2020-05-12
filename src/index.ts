@@ -29,7 +29,7 @@ export namespace Monit {
         };
         app.handlers.registerSubApp('atma/monit', subApp, null);
     }
-    export function createChannel (name: string, opts?: ILoggerOpts) {
+    export function createChannel (name: string, opts?: Partial<ILoggerOpts>) {
         return monit.createChannel(name, opts);
     }
     export function flush () {

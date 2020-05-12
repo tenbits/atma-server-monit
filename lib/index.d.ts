@@ -11,7 +11,7 @@ declare module 'atma-server-monit' {
     import { ILoggerOpts } from 'atma-server-monit/fs/LoggerFile';
     export namespace Monit {
             function start(app: Application, opts: IMonitOptions): void;
-            function createChannel(name: string, opts?: ILoggerOpts): LoggerFile;
+            function createChannel(name: string, opts?: Partial<ILoggerOpts>): LoggerFile;
             function flush(): void;
             function error(error: Error): void;
     }
