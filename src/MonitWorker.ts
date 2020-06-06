@@ -116,10 +116,7 @@ export class MonitWorker {
             this.loggers.requests.write(
                 `${new Date().toISOString()}, ${event.status}, ${event.method}, ${Csv.escape(event.url)}, ${event.time}ms, ${event.user ?? ''}, ${ Err.serializeError(event.error ?? event.message)}`
             );
-            let status = event.status;
-            if (event.error) {
-                status = (event.error as any)?.statusCode ?? 500;
-            }
+            let status = event.status ?? (event.error as any)?.statusCode ?? 500;
             if (status <= 404 || this.slack == null) {
                 return;
             }
