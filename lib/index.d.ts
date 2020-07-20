@@ -18,6 +18,7 @@ declare module 'atma-server-monit' {
 }
 
 declare module 'atma-server-monit/fs/LoggerFile' {
+    import { ICsvColumn } from 'atma-server-monit/model/ICsvColumn';
     export interface ILoggerOpts {
         directory: string;
         fileCountMax?: number;
@@ -25,14 +26,7 @@ declare module 'atma-server-monit/fs/LoggerFile' {
         fileMessagesMax?: number;
         messageBufferMax?: number;
         fields?: ICsvColumn[];
-    }
-    export interface ICsvColumn {
-        name: string;
-        type: 'string' | 'number' | 'date';
-        summable?: boolean;
-        groupable?: boolean;
-        sortable?: boolean;
-        filterable?: boolean;
+        columns?: ICsvColumn[];
     }
     export class LoggerFile {
         directory: string;
@@ -74,6 +68,18 @@ declare module 'atma-server-monit/MonitWorker' {
         writeError(error: Error): void;
         /** Flush all buffered content to disk */
         flush(): void;
+    }
+}
+
+declare module 'atma-server-monit/model/ICsvColumn' {
+    export interface ICsvColumn {
+        idx: number;
+        name: string;
+        type: 'string' | 'number' | 'date' | 'text' | 'boolean';
+        summable?: boolean;
+        groupable?: boolean;
+        sortable?: boolean;
+        filterable?: boolean;
     }
 }
 
