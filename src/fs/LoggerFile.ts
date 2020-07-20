@@ -5,6 +5,7 @@ import  * as Formatter from 'atma-formatter'
 import { date_getMidnight } from '../utils/date';
 import { class_Uri } from 'atma-utils';
 import { Csv } from '../utils/csv';
+import { ICsvColumn } from '../model/ICsvColumn';
 
 
 export interface ILoggerOpts {
@@ -14,17 +15,10 @@ export interface ILoggerOpts {
     fileMessagesMax?: number
     messageBufferMax?: number
     fields?: ICsvColumn[]
-}
-export interface ICsvColumn {
-    name: string,
-    type: 'string' | 'number' | 'date'
 
-    summable?: boolean
-    groupable?: boolean
-    sortable?: boolean
-    filterable?: boolean
+    //@obsolete Use fields
+    columns?: ICsvColumn[]
 }
-
 export class LoggerFile {
     public directory: string;
     public opts: ILoggerOpts;

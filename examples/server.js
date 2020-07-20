@@ -2,7 +2,7 @@
 
 let lib = require('includejs');
 let server = require('atma-server');
-let { MonitFactory } = require('../lib/index');
+let { Monit } = require('../lib/index');
 
 lib
     .include
@@ -13,7 +13,7 @@ lib
 new server
     .Application({
         base:__dirname,
-        configs: './configs/**.yml', 
+        configs: './configs/**.yml',
         config: {
             SERVER: true,
             TEST: true
@@ -31,6 +31,6 @@ new server
                 })
                 .listen(app.config.$get('port') || 5777);
 
-            MonitFactory.start(app, { directory: './logs/' });
-        
+            Monit.start(app, { directory: './logs/' });
+
     });

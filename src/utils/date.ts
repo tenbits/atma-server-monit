@@ -5,3 +5,8 @@ export function date_getMidnight (date: Date, diffDays: number = 0) {
     }
     return date.getTime();
 }
+export function date_sameDate (a: Date, b: Date) {
+    return a.getDate() === b.getDate()
+        && a.getMonth() === b.getMonth()
+        && a.getFullYear() === b.getFullYear();
+}

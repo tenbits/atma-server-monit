@@ -10,7 +10,7 @@
                 console.log(error);
             };
         </script>
-        
+
         <script type='text/mask' data-run='auto'>
             import:cfg('prefixes.mdc', '/compo/mdc/{0}');
             import:cfg('es6Modules', true);
@@ -21,16 +21,18 @@
         </script>
 
         <script src="node_modules/material-components-web/dist/material-components-web.js" data-bundler-bundle='vendor' data-bundler-dependencies='ignore'></script>
-        <script src='node_modules/jquery/dist/jquery.min.js' data-bundler-bundle='vendor' data-bundler-dependencies='ignore'></script>        
+        <script src='node_modules/jquery/dist/jquery.min.js' data-bundler-bundle='vendor' data-bundler-dependencies='ignore'></script>
         <script src='node_modules/axios/dist/axios.min.js' data-bundler-bundle='vendor' data-bundler-dependencies='ignore'></script>
+        <script src='node_modules/ruta/lib/ruta.js' data-bundler-bundle='vendor' data-bundler-dependencies='ignore'></script>
         <script src='node_modules/includejs/lib/include.js' data-bundler-bundle='vendor' data-bundler-dependencies='ignore'></script>
         <script src='node_modules/maskjs/lib/mask.js' data-bundler-bundle='vendor' data-bundler-dependencies='ignore'></script>
-        
+        <script src='node_modules/compo-views/lib/views.js' data-bundler-bundle='vendor' data-bundler-dependencies='ignore'></script>
+
         <link data-bundler='ignore' href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
-        <link data-bundler='ignore' href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" async defer>        
-        
-        <link href="node_modules/material-components-web/dist/material-components-web.css" rel="stylesheet" /> 
-        
+        <link data-bundler='ignore' href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" async defer>
+
+        <link href="node_modules/material-components-web/dist/material-components-web.css" rel="stylesheet" />
+
         <script>
             include
                 .cfg('commonjs', true)
@@ -39,13 +41,13 @@
                 .cfg('extentionDefault', { js: 'ts' })
                 .cfg('base', './')
                 .cfg('map', {
-                    
+
                 })
-                .routes({ 
-                    
+                .routes({
+
                 });
         </script>
-        
+
         <script type='text/javascript' src='src/script/debug.js' data-bundler-if='DEBUG'></script>
         <script type='text/javascript' src='node_modules/includejs/lib/include.autoreload.js' data-bundler-if='DEBUG'></script>
         <script type='text/javascript' src='node_modules/maskjs/lib/plugin.reload.js' data-bundler-if='DEBUG'></script>

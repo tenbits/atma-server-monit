@@ -34,7 +34,7 @@ export class MonitWorker {
         };
         this.loggers = {
             start: LoggerFile.create('start', Object.assign(<Partial<ILoggerOpts>>{
-                columns: [
+                fields: [
                     {
                         name: 'Date',
                         type: 'date',
@@ -46,7 +46,7 @@ export class MonitWorker {
                 ]
             }, loggerOpts)),
             requests: LoggerFile.create('requests', Object.assign(<Partial<ILoggerOpts>>{
-                columns: [
+                fields: [
                     {
                         name: 'Date',
                         type: 'date',
@@ -76,12 +76,13 @@ export class MonitWorker {
                     },
                     {
                         name: 'Error',
+                        type: 'text'
                     }
                 ]
             }, loggerOpts)),
             errors: LoggerFile.create('errors', Object.assign(
                 <Partial<ILoggerOpts>>{
-                    columns: [
+                    fields: [
                         {
                             name: 'Date',
                             type: 'date',
@@ -93,7 +94,10 @@ export class MonitWorker {
                     ]
             }, loggerOpts)),
         };
-        this.watch(events);
+
+        if (events) {
+            this.watch(events);
+        }
     }
 
     createChannel (name: string, opts?: Partial<ILoggerOpts>): LoggerFile {

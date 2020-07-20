@@ -1,0 +1,28 @@
+import './ChannelView.less'
+import ChannelViewCtr from './ChannelViewCtr.ts'
+
+define ChannelView extends ChannelViewCtr {
+
+    +if (this.loadingView) {
+        progress;
+    } else {
+
+        listen (this.viewTick) > table.data-table {
+            thead > tr {
+                each (this.columns) {
+                    th > '~name'
+                }
+            }
+            tbody {
+                +for (row of this.formattedRows) {
+                    tr {
+
+                        for (cell of row) {
+                            td .~[cell.type] > '~cell.display'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

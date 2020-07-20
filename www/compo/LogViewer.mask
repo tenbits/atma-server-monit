@@ -2,11 +2,24 @@ import LogViewerCtr from './LogViewerCtr.ts';
 import './LogViewer.less'
 
 import AppBar from '@mdc/AppBar'
+import ChannelsView from './views/channels/ChannelsView'
+import ChannelView from './views/channel/ChannelView'
+
+import AppBar from '@mdc/AppBar'
 
 define LogViewer extends LogViewerCtr {
 
     AppBar {
         @navigation x-tap='goHome' > 'person'
         @title > 'Logs'
+    }
+
+    ViewManager {
+        View route='?channels' default {
+            ChannelsView;
+        }
+        View route='?channel' {
+            ChannelView;
+        }
     }
 }

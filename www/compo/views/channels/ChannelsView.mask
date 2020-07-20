@@ -1,0 +1,11 @@
+import ChannelsViewCtr from './ChannelsViewCtr.ts'
+
+define ChannelsView extends ChannelsViewCtr {
+
+
+    ul {
+        each (this.channels) {
+            li x-tap='goToChannel(name)' > '~name'
+        }
+    }
+}

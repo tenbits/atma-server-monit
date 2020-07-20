@@ -47,7 +47,7 @@ channel.write(`Lorem ipsum,123,${Date.now()}`);
 
 SubApplication to view/sort/filter collected events
 
-* Development endpoints (_unbuild source_): 
+* Development endpoints (_unbuild source_):
     * web: `http://localhost:5777/atma/monit/index.dev.html`
     * api, e.g: `http://localhost:5777/atma/monit/api/logs/channels`
 
@@ -68,6 +68,8 @@ SubApplication to view/sort/filter collected events
 
 # starts demo server with Core and Viewer attached
 > npm run example
+
+# navigate to http://localhost:5777/atma/monit/index.dev.html
 ```
 
 ----
