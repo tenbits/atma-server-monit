@@ -39,3 +39,9 @@ export namespace Monit {
         monit?.writeError(error);
     }
 }
+
+declare var global;
+if (global.atma == null) {
+    global.atma = {};
+}
+global.atma.Monit = Monit;

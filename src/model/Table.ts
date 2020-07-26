@@ -32,6 +32,11 @@ export class Table {
     }
 
     getTable (params: ITableQuery): any[][] {
+        if (typeof params.columnFilters === 'string') {
+            // hacky workaround, parse as json
+            params.columnFilters = JSON.parse(params.columnFilters);
+        }
+
 
         let rows = this.rows;
         let filters = params.columnFilters?.map(def => {
@@ -66,7 +71,6 @@ export class Table {
             let limit = params.limit ?? 100;
             rows = rows.slice(offset, offset + limit);
         }
-
         return rows;
     }
 }
@@ -170,7 +174,7 @@ namespace ColumnFilters {
                 },
             }
             export function delegateFn (a: number, compare: NumCompare) {
-                switch (this.compare) {
+                switch (compare) {
                     case '<':
                         return Methods.lt(a);
                     case '<=':

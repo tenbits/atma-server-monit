@@ -10,7 +10,7 @@ import AppBar from '@mdc/AppBar'
 define LogViewer extends LogViewerCtr {
 
     AppBar {
-        @navigation x-tap='goHome' > 'person'
+        @navigation x-tap='goHome' > 'dns'
         @title > 'Logs'
     }
 

@@ -1,0 +1,26 @@
+import Dialog from '@mdc/Dialog'
+import Input from '@mdc/Input'
+import Button from '@mdc/Button'
+import FilterInputCtr from './FilterInputCtr.ts'
+
+define FilterInput extends FilterInputCtr {
+
+    Dialog {
+
+        @head {
+            div {
+                'Filter ~[bind: columnName] '
+                tt > ' ~[bind: columnType]'
+            }
+        }
+        @body {
+            input placeholder='Value' {
+                dualbind value='value';
+            }
+        }
+        @footer {
+            Button style='color: #555' x-tap='close' > 'Close'
+            Button x-tap='submit' > 'Save'
+        }
+    }
+}

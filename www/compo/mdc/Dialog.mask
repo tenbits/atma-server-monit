@@ -1,6 +1,6 @@
 define Dialog as (.mdc-dialog) {
 
-    
+
     function renderEnd (els) {
         let el = els[0];
         this.dialog = new mdc.dialog.MDCDialog(el);
@@ -25,9 +25,9 @@ define Dialog as (.mdc-dialog) {
     .mdc-dialog__container > .mdc-dialog__surface style='@[attr.fullHeight ? "height: calc(100vh - 32px);"]' {
         h2 .mdc-dialog__title > @head;
         .mdc-dialog__content {
-            @body;              
-        }    
-        
+            @body;
+        }
+
         footer .mdc-dialog__actions {
             @footer;
         }

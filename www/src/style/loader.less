@@ -1,0 +1,67 @@
+ html, body {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+}
+body {
+    background: url("/viewer/assets/win/background.jpg") center center no-repeat;
+    background-size: cover;
+    background-color: #bbd444;
+}
+#app-loader {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-left: -82px;
+    margin-top: -82px;
+    animation: pageLoaderOn 1000ms linear both;
+    will-change: transform;
+    transform-origin: center center;
+    z-index: 999999;
+}
+#app-loader-box {
+    display: inline-block;
+    position: relative;
+    width: 164px;
+    height: 164px;
+    line-height: 164px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0px 0px 4px #777;
+    text-align: center;                
+}
+#app-loader-image {
+  max-width: 120px; 
+  vertical-align: middle;
+}
+#app-loader-percents {
+    line-height: 1em;
+    position: absolute;
+    bottom: 14px;
+    left: 0%;
+    width: 100%;
+    text-align: center;
+    color: #103076;
+    opacity: .7;
+    font-family: monospace;            
+    font-size: .8em;
+    opacity: .9;
+}
+#page-spinner {
+    position: absolute;
+    top: 0px; left: 0px;
+    width:164px; height: 164px;
+}
+
+@keyframes pageLoaderOn { 
+  0% { transform: matrix3d(0.2, 0, 0, 0, 0, 0.2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
+  4.3% { transform: matrix3d(0.611, 0, 0, 0, 0, 0.611, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
+  8.61% { transform: matrix3d(0.903, 0, 0, 0, 0, 0.903, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
+  12.91% { transform: matrix3d(1.042, 0, 0, 0, 0, 1.042, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
+  17.22% { transform: matrix3d(1.075, 0, 0, 0, 0, 1.075, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
+  28.33% { transform: matrix3d(1.017, 0, 0, 0, 0, 1.017, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
+  39.44% { transform: matrix3d(0.995, 0, 0, 0, 0, 0.995, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
+  61.66% { transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
+  83.98% { transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
+  100% { transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); } 
+}

@@ -14,7 +14,7 @@ export class DirectoryReader {
         let files = await Directory.readFiles(dir);
 
         let readers = files.map(file => {
-            return new FileReader(this.channel, file);
+            return FileReader.create(this.channel, file.uri.toString());
         });
 
         return readers;

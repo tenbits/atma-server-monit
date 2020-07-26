@@ -1,22 +1,36 @@
 import { File } from 'atma-io';
 import { LoggerFile } from '../../src/fs/LoggerFile';
 import { ICsvColumn } from "../../src/model/ICsvColumn";
+import { date_sameDate } from '../../src/utils/date';
+
+const cache = new Map<string, FileReader>();
 
 export class FileReader {
     day: Date;
     dayEnd: Date;
     fields: ICsvColumn[]
+    cached = true
+    table: any[][] = null;
 
-    constructor(public channel: LoggerFile, public file: InstanceType<typeof File>) {
+    static create (channel: LoggerFile, uri: string) {
+        if (cache.has(uri)) {
+            return cache.get(uri);
+        }
+        let reader = new FileReader(channel, uri);
+        cache.set(uri, reader);
+        return reader;
+    }
+
+    protected constructor(public channel: LoggerFile, public uri: string) {
         this.fields = channel.opts?.fields ?? channel.opts?.columns;
         if (this.fields == null) {
             throw new Error(`Logger FileReader: fields are not defined for a channel ${channel.opts.directory}`)
         }
         // const filename = `${ d.getTime() }_${this._idx}__${Formatter(d, 'MM-dd')}.csv`;
         let rgx = /(\d+)_(\d+)__(\d+)\-(\d+)(\-(\d+))?/;
-        let match = rgx.exec(file.uri.file);
+        let match = rgx.exec(uri);
         if (match == null) {
-            throw new Error(`Invalid filename: ${file.uri.file}`);
+            throw new Error(`Invalid filename: ${uri}`);
         }
         let [_, timestamp, idx, MM, dd, _1, YYYY] = match;
 
@@ -32,22 +46,33 @@ export class FileReader {
         );
         this.dayEnd = new Date(this.day);
         this.dayEnd.setDate(this.dayEnd.getDate() + 1);
+
     }
 
 
     async read() {
-        let str = await this.file.readAsync<string>();
-        return this.parse(str);
-
+        if (this.table) {
+            return this.table;
+        }
+        let file = new File(this.uri, { cached: false });
+        let str = await file.readAsync<string>();
+        let table = this.parse(str);
+        if (date_sameDate(new Date(), this.day) === false) {
+            // Cache everything, but not for today
+            this.table = table;
+        }
+        console.log('READ', 'cached', this.table?.length);
+        return table;
     }
-    async parse(str: string) {
+
+    private parse(str: string) {
         let NEW_LINE = '\n';
         let i = str.indexOf('\n')
         if (str[i - 1] === '\r') {
             NEW_LINE = '\r\n';
         }
 
-        let rows = str.split(NEW_LINE).map(row => {
+        let rows = str.split(NEW_LINE).reverse().map(row => {
             if (row === '') {
                 return null;
             }

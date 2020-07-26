@@ -4,6 +4,7 @@ import alot from 'alot';
 import { DirectoryReader } from './DirectoryReader';
 import { Table, ITableColumnFilter } from '../../src/model/Table';
 import { ICsvColumn } from '../../src/model/ICsvColumn';
+import { ChannelReader } from './ChannelReader';
 
 export class LogsReader {
     constructor (public monit: MonitWorker) {
@@ -20,53 +21,34 @@ export class LogsReader {
             };
         });
     }
-    async getChannelData (query: GetChannelParams) {
-        let rangeStart = query.rangeStart;
-        let rangeEnd = query.rangeEnd ?? new Date();
-        if (rangeStart == null) {
-            rangeStart = new Date(
-                rangeEnd.getFullYear(),
-                rangeEnd.getMonth(),
-                rangeEnd.getDate(),
-                0, 0, 0, 0
-            );
+    getChannelInfo (key: string) {
+        let channel = this.monit.loggers[key];
+        if (channel == null) {
+            throw new Error(`Channel ${key} not found`);
         }
+        return {
+            name: key,
+            directory: channel.directory,
+            columns: channel.opts.fields
+        };
+
+    }
+    async getChannelDays (key: string) {
+        let channel = this.monit.loggers[key];
+        if (channel == null) {
+            throw new Error(`Channel ${key} not found`);
+        }
+        let channelReader = new ChannelReader(channel);
+        return channelReader.getDays();
+    }
+    async getChannelData (query: GetChannelParams) {
 
         let channel = this.monit.loggers[query.key];
         if (channel == null) {
             throw new Error(`Channel ${query.key} not found`);
         }
-        let fields: ICsvColumn[] = channel.opts.fields ?? (channel.opts as any).columns;
-        if (fields == null) {
-            throw new Error(`Channel ${query.key} has no fields defined`);
-        }
-
-        let directory = DirectoryReader.create(channel)
-        let readers = await directory.readFiles();
-
-        readers = readers.filter(reader => {
-            if (reader.day > rangeEnd) {
-                return false;
-            }
-            if (reader.dayEnd < rangeStart) {
-                return false;
-            }
-            return true;
-        });
-
-        let rows = await alot(readers)
-            .mapManyAsync(async reader => {
-                return await reader.read();
-            })
-            .toArrayAsync();
-
-
-        let table = new Table(fields, rows);
-        return {
-            columns: fields,
-            rows: table.getTable(query),
-            size: table.size
-        }
+        let channelReader = new ChannelReader(channel);
+        return channelReader.getData(query);
     }
 }
 
@@ -75,6 +57,7 @@ export class GetChannelParams {
     @Rule.required()
     key: string
 
+    @Json.type(Number)
     sortByColumnIdx?: number
     sortDir?: 'asc' | 'desc'
 
@@ -86,7 +69,10 @@ export class GetChannelParams {
     @Json.type(Date)
     rangeEnd?: Date
 
+    @Json.type(Number)
     offset?: number
+
+    @Json.type(Number)
     limit?: number
 };
 

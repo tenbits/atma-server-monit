@@ -1,5 +1,8 @@
 {
     "private": true,
+    "scripts": {
+        "build": "app-bundler"
+    },
     "dependencies": {
         "axios": "^0.19.2",
         "compo-views": "^0.10.44",
@@ -8,6 +11,34 @@
         "maskjs": "^0.71.79",
         "material-components-web": "^6.0.0",
         "ruta": "^0.2.62"
+    },
+    "app-bundler": {
+        "apps": {
+            "mm": {
+                "file": "index.dev.html",
+                "outputMain": "index.html",
+                "outputSources": "build/",
+                "dynamicDependencies": []
+            }
+        },
+        "common": {
+            "package": {
+                "module": "includejs"
+            },
+            "varDefs": {
+                "DEBUG": false,
+                "SERVER": true
+            },
+            "version": "${version}",
+            "middlewares": {
+                "less": [
+                    "atma-loader-less:read"
+                ],
+                "ts": [
+                    "atma-loader-ts:read"
+                ]
+            }
+        }
     },
     "atma": {
         "plugins": [
@@ -25,13 +56,13 @@
                 "typescript": {
                     "compilerOptions": {
                         "target": "es6",
-                        "module": "CommonJS",
-                        "#if (TEST)": {
-                            "module": "AMD"
-                        }
+                        "module": "AMD"
                     }
                 }
             }
         }
+    },
+    "devDependencies": {
+        "app-bundler": "0.0.88"
     }
 }

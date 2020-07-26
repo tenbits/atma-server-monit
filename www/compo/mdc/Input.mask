@@ -23,13 +23,16 @@ define Input {
         }
     }
 
-    .mdc-text-field 
+    .mdc-text-field
     .@[after ? "mdc-text-field--with-trailing-icon"]
-    .@[before ? "mdc-text-field--with-leading-icon"] 
+    .@[before ? "mdc-text-field--with-leading-icon"]
     @[...attr] {
         @before optional;
         input.mdc-text-field__input name="input~[this.ID]"  @[...attr] autocomplete="off" x-press='esc: clearInput' {
-            dualbind value='this.value' x-signal='object: objectChanged;dom: input';
+            dualbind
+                dom-supports-default=false
+                value='this.value'
+                x-signal='object: objectChanged;dom: input';
         }
         @after optional;
         label for="input~[this.ID]" .mdc-floating-label > '@[attr.label]'

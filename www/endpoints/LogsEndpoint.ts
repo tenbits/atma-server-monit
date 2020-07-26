@@ -2,9 +2,10 @@ import { HttpEndpoint, HttpError } from 'atma-server';
 import { LogsReader, GetChannelParams } from '../server/LogsReader';
 import { Directory } from 'atma-io'
 import { Rule, Json } from 'class-json';
+import { Monit } from '../../src';
 
 const { fromUri, fromBody, Types } = HttpEndpoint;
-
+declare var global;
 
 class GetChannelResponse {
 
@@ -18,6 +19,14 @@ export default class extends HttpEndpoint {
     ) {
         let reader = new LogsReader(this.app.lib.monit);
         return reader.getChannels();
+    }
+
+    async '$get /flush' (
+        req
+    ) {
+        await global.atma?.Monit?.flush?.();
+        await this.app?.lib?.monit?.flush?.();
+        return { ok: 1};
     }
 
     @HttpEndpoint.response({ Type: Types.ArrayOf(GetChannelResponse) })
@@ -45,11 +54,14 @@ export default class extends HttpEndpoint {
         @fromUri({ Type: GetChannelParams }) params: GetChannelParams
     ) {
         let reader = new LogsReader(this.app.lib.monit);
-        let channels = reader.getChannels();
-        let channel = channels.find(x => x.name === params.key);
-        if (channel == null) {
-            throw new HttpError(`Channel not found: ${params.key}`, 400);
-        }
+        let channel = reader.getChannelInfo(params.key);
         return reader.getChannelData(params);
+    }
+
+    async '$get /channel/:key/days' (
+        @fromUri({ Type: GetChannelParams }) params: GetChannelParams
+    ) {
+        let reader = new LogsReader(this.app.lib.monit);
+        return reader.getChannelDays(params.key);
     }
 }
