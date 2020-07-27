@@ -75,6 +75,9 @@ export class MonitWorker {
                         name: 'User'
                     },
                     {
+                        name: 'IP'
+                    },
+                    {
                         name: 'Error',
                         type: 'text'
                     }

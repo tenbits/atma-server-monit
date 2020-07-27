@@ -1,4 +1,6 @@
 import { FilterInputCtr } from './filter/FilterInputCtr';
+import { date_getMidnight } from '../../../../src/utils/date';
+
 
 declare var axios;
 
@@ -18,6 +20,9 @@ export class ChannelViewCtr {
 
     @mask.deco.refCompo('FilterInput')
     filterInput: FilterInputCtr
+
+    @mask.deco.refCompo('TextRawViewer')
+    textRawViewer: TextRawViewerCtr
 
     name: string
     isViewLoading: boolean = true;
@@ -62,7 +67,7 @@ export class ChannelViewCtr {
 
         let days = await this.loadDays();
 
-        this.query.rangeStart = days?.[0].day;
+        this.query.rangeStart = days?.[0]?.day ?? date_getMidnight(new Date());
         this.days = days;
         await this.loadData();
 
@@ -75,6 +80,11 @@ export class ChannelViewCtr {
     @mask.deco.slotPrivate()
     async doFilter (sender, column: IUiColumn ) {
         this.filterInput.show(column);
+    }
+
+    @mask.deco.slotPrivate()
+    doShowContent (sender, cell) {
+        this.textRawViewer.show(cell)
     }
 
     @mask.deco.slotPrivate()
@@ -166,7 +176,7 @@ export class ChannelViewCtr {
         this.formattedRows = rows.map(row => {
             return row.map((val, index) => {
                 let type = columns[index].type;
-                let display = getDisplayValue(val, type);
+                let { display, isTruncated } = getDisplayValue(val, type);
                 return {
                     value: val,
                     display,
@@ -178,13 +188,13 @@ export class ChannelViewCtr {
 
         function getDisplayValue (val, type) {
             if (!val) {
-                return val;
+                return { display: val, isTruncated: false };
             }
             switch (type) {
                 case 'date':
-                    return Utils.formatDate(val);
+                    return { display: Utils.formatDate(val), isTruncated: false }
             }
-            return val;
+            return { display: val, isTruncated: false };
         }
     }
 }
@@ -224,28 +234,54 @@ export class QueryCtr {
         this._hasForward = iNext < this._days.length - 1;
         this.emitOut('onDaySelected', this._selected);
     }
-
 }
 
+
+export class TextRawViewerCtr {
+    emitOut
+
+    model = {
+        content: ''
+    }
+
+    @mask.deco.refCompo('Dialog')
+    dialog
+
+
+    show (cell) {
+        this.model.content = cell.value;
+
+        this.dialog.open();
+    }
+}
+
+
 namespace Utils {
-    export function formatDate (date: string | Date, format: 'full' | 'short' = 'full') {
-        if (date == null) {
+    let patterns = {
+        full: 'MM-dd HH:mm:ss',
+        short: 'MM-dd HH:mm'
+    }
+    export function formatDate (mix: string | Date, format: 'full' | 'short' | string = 'full') {
+        if (mix == null) {
             return '';
         }
-        if (date instanceof Date) {
-            date = date.toISOString();
-        }
+        let date = typeof mix === 'string' ? new Date(mix) : mix;
+        let yyyy = String(date.getFullYear());
+        let M = String(date.getMonth() + 1);
+        let d = String(date.getDate());
+        let h = String(date.getHours());
+        let min = String(date.getMinutes());
+        let sec = String(date.getSeconds());
 
-        let str = date
-            .replace(/^\d{4}\-/, '')
-            .replace(/\..+$/, '')
-            .replace('T', ' ');
+        let pattern = patterns[format] ?? format;
 
-        if (format === 'short') {
-            str = str.replace(/:\d{2}$/, '');
-        }
-
-        return str;
+        return pattern
+            .replace('YYYY', yyyy)
+            .replace('MM', M.padStart(2, '0'))
+            .replace('dd', d.padStart(2, '0'))
+            .replace('HH', h.padStart(2, '0'))
+            .replace('mm', min.padStart(2, '0'))
+            .replace('ss', sec.padStart(2, '0'));
     }
     mask._.formatDate = Utils.formatDate;
 }

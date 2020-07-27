@@ -1,5 +1,6 @@
 {
     "private": true,
+    "version": "0.0.1",
     "scripts": {
         "build": "app-bundler"
     },
@@ -64,6 +65,9 @@
         }
     },
     "devDependencies": {
-        "app-bundler": "0.0.88"
+        "app-bundler": "0.0.88",
+        "atma-io": "^1.2.32",
+        "atma-server": "^0.4.75",
+        "class-json": "^0.3.1"
     }
 }

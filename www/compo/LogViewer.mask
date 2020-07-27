@@ -12,6 +12,9 @@ define LogViewer extends LogViewerCtr {
     AppBar {
         @navigation x-tap='goHome' > 'dns'
         @title > 'Logs'
+        @sectionEnd x-tap='doFlush' {
+            button .material-icons .mdc-icon-button  .mdc-top-app-bar__action-item x-tap='doFlush' > 'refresh';
+        }
     }
 
     ViewManager {

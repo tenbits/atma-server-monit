@@ -1,8 +1,7 @@
 import { HttpEndpoint, HttpError } from 'atma-server';
 import { LogsReader, GetChannelParams } from '../server/LogsReader';
 import { Directory } from 'atma-io'
-import { Rule, Json } from 'class-json';
-import { Monit } from '../../src';
+
 
 const { fromUri, fromBody, Types } = HttpEndpoint;
 declare var global;
@@ -21,7 +20,7 @@ export default class extends HttpEndpoint {
         return reader.getChannels();
     }
 
-    async '$get /flush' (
+    async '$post /flush' (
         req
     ) {
         await global.atma?.Monit?.flush?.();

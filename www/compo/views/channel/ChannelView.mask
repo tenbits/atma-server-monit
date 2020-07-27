@@ -1,10 +1,11 @@
 import './ChannelView.less'
-import ChannelViewCtr, QueryCtr from './ChannelViewCtr.ts'
+import ChannelViewCtr, QueryCtr, TextRawViewerCtr from './ChannelViewCtr.ts'
 import FilterInput from './filter/FilterInput'
 
 define ChannelView extends ChannelViewCtr {
 
     FilterInput;
+    TextRawViewer;
 
     .row.data-table-header {
         .col-full.w100 {
@@ -50,7 +51,7 @@ define ChannelView extends ChannelViewCtr {
                     tr {
 
                         for (cell of row) {
-                            td .~[cell.type] > '~cell.display'
+                            td .~[cell.type] x-tap='doShowContent(cell)' > '~cell.display'
                         }
                     }
                 }
@@ -79,9 +80,20 @@ let Query (query) extends QueryCtr {
         +if (this._hasBack) {
             span .btn.touch-action x-tap='goDay(-1)' > 'Back'
         }
-        span > '~[bind: _.formatDate(this._selected.day, "short")]'
+        span > '~[bind: _.formatDate(this._selected.day, "MM-dd")]'
         +if (this._hasForward) {
             span .btn.touch-action x-tap='goDay(1)' > 'Next'
+        }
+    }
+}
+
+let TextRawViewer extends TextRawViewerCtr {
+    Dialog {
+        @body {
+            tt > pre style='max-width:100%; overlow: auto;' [textContent]='~[bind: content]';
+        }
+        @footer {
+            Button x-tap='close' > 'Close'
         }
     }
 }

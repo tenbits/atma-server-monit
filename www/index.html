@@ -35,9 +35,9 @@
 define ChannelsView extends ChannelsViewCtr {
 
 
-    ul {
+    ul .mdc-list style='max-width: 800px; margin: 0 auto;' {
         each (this.channels) {
-            li x-tap='goToChannel(name)' > '~name'
+            li .mdc-list-item x-tap='goToChannel(name)' > '~name'
         }
     }
 }
@@ -196,12 +196,13 @@ define FilterInput extends FilterInputCtr {
 				</script>
 <script type="text/plain" data-bundler-path="/compo/views/channel/ChannelView.mask">			
 					import './ChannelView.less'
-import ChannelViewCtr, QueryCtr from './ChannelViewCtr.ts'
+import ChannelViewCtr, QueryCtr, TextRawViewerCtr from './ChannelViewCtr.ts'
 import FilterInput from './filter/FilterInput'
 
 define ChannelView extends ChannelViewCtr {
 
     FilterInput;
+    TextRawViewer;
 
     .row.data-table-header {
         .col-full.w100 {
@@ -247,7 +248,7 @@ define ChannelView extends ChannelViewCtr {
                     tr {
 
                         for (cell of row) {
-                            td .~[cell.type] > '~cell.display'
+                            td .~[cell.type] x-tap='doShowContent(cell)' > '~cell.display'
                         }
                     }
                 }
@@ -276,9 +277,20 @@ let Query (query) extends QueryCtr {
         +if (this._hasBack) {
             span .btn.touch-action x-tap='goDay(-1)' > 'Back'
         }
-        span > '~[bind: _.formatDate(this._selected.day, "short")]'
+        span > '~[bind: _.formatDate(this._selected.day, "MM-dd")]'
         +if (this._hasForward) {
             span .btn.touch-action x-tap='goDay(1)' > 'Next'
+        }
+    }
+}
+
+let TextRawViewer extends TextRawViewerCtr {
+    Dialog {
+        @body {
+            tt > pre style='max-width:100%; overlow: auto;' [textContent]='~[bind: content]';
+        }
+        @footer {
+            Button x-tap='close' > 'Close'
         }
     }
 }
@@ -354,6 +366,9 @@ define LogViewer extends LogViewerCtr {
     AppBar {
         @navigation x-tap='goHome' > 'dns'
         @title > 'Logs'
+        @sectionEnd x-tap='doFlush' {
+            button .material-icons .mdc-icon-button  .mdc-top-app-bar__action-item x-tap='doFlush' > 'refresh';
+        }
     }
 
     ViewManager {
@@ -381,7 +396,7 @@ define LogViewer extends LogViewerCtr {
             LogViewer;
         </script>
 
-        <script src="build/main_vendor.js?v=${version}" type="text/javascript"></script>
+        <script src="build/main_vendor.js?v=0.0.1" type="text/javascript"></script>
         
         
         
@@ -392,7 +407,9 @@ define LogViewer extends LogViewerCtr {
         <link data-bundler="ignore" href="https://fonts.googleapis.com/css?family=Roboto&amp;display=swap" rel="stylesheet">
         <link data-bundler="ignore" href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" async defer>
 
-        <link href="build/main_index.css?v=${version}" rel="stylesheet">
+        <link href="build/main_index.css?v=0.0.1" rel="stylesheet">
+
+        
         
 
 
@@ -411,7 +428,7 @@ define LogViewer extends LogViewerCtr {
                 });
         </script>
 
-        <script src="build/main_index.js?v=${version}" type="text/javascript"></script>
+        <script src="build/main_index.js?v=0.0.1" type="text/javascript"></script>
         
         
 

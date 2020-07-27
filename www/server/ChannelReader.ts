@@ -14,7 +14,7 @@ export class ChannelReader {
         let readers = await directory.readFiles();
 
         let days = alot(readers)
-            .sortBy(x => x.day.valueOf(), 'desc')
+            .sortBy(x => x.day.valueOf(), 'asc')
             .map(reader => {
                 return {
                     day: reader.day

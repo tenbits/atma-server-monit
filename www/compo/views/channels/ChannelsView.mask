@@ -3,9 +3,9 @@ import ChannelsViewCtr from './ChannelsViewCtr.ts'
 define ChannelsView extends ChannelsViewCtr {
 
 
-    ul {
+    ul .mdc-list style='max-width: 800px; margin: 0 auto;' {
         each (this.channels) {
-            li x-tap='goToChannel(name)' > '~name'
+            li .mdc-list-item x-tap='goToChannel(name)' > '~name'
         }
     }
 }

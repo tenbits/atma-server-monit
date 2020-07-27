@@ -1,6 +1,6 @@
 {
     "name": "atma-server-monit",
-    "version": "1.0.18",
+    "version": "1.0.19",
     "description": "Application Monitor Layer",
     "author": "Alex Kit (alex.kit@atmajs.com)",
     "main": "lib/index.js",
@@ -8,7 +8,7 @@
     "scripts": {
         "build": "app-bundler && npm run build-dts",
         "watch": "app-bundler --watch",
-        "example": "node examples/server --TEST --debug",
+        "example": "node examples/server --TEST --debug --monit.pss foo",
         "release": "echo atma pub -m \"Message\"",
         "build-dts": "tsc --version && tsc -p tsconfig-build.json && atma run tools/build-dts"
     },
@@ -22,6 +22,7 @@
     "devDependencies": {
         "@types/node": "^10.17.17",
         "app-bundler": "0.0.88",
+        "atma-io": "^1.2.32",
         "atma-io-middleware-yml": "^1.1.25",
         "atma-loader-less": "^1.1.5",
         "atma-server": "^0.4.75",
@@ -88,6 +89,7 @@
         "atma-utils": "^0.1.37",
         "class-json": "^0.2.88",
         "dts-bundle": "^0.7.3",
+        "express-basic-auth": "^1.2.0",
         "memd": "^0.2.84",
         "signal-exit": "^3.0.2"
     }

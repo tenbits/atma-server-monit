@@ -11210,6 +11210,241 @@ a.mdc-list-item {
 }
 
 /*# sourceMappingURL=material-components-web.css.map*/
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Roboto, sans-serif;
+}
+a {
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+table {
+  border-collapse: collapse;
+}
+hr {
+  margin: 10px 5%;
+}
+.mdc-top-app-bar {
+  position: relative;
+  top: 0;
+  left: 0;
+}
+.mdc-top-app-bar__action-item > svg {
+  width: 100%;
+}
+.mdc-top-app-bar__action-item.active {
+  background: white;
+  color: #6200ee;
+  border-radius: 50%;
+}
+.mdc-text-field {
+  width: 100%;
+  align-items: center;
+}
+.mdc-card__content {
+  padding: 1rem;
+}
+.mdc-dialog__container {
+  max-width: 100%;
+}
+.mdc-dialog__container > .mdc-dialog__surface {
+  max-width: 98% !important;
+  min-width: 40vw;
+  max-height: 85vh;
+}
+@media only screen and (max-width: 768px) {
+  .mdc-dialog__container > .mdc-dialog__surface {
+    width: 100vw;
+    height: 90vh;
+    height: -webkit-fill-available;
+    padding: 1em 0;
+    box-sizing: border-box;
+    margin: 0;
+    max-width: unset !important;
+    max-height: unset !important;
+    border-radius: 0px !important;
+    box-shadow: none !important;
+  }
+}
+@media only screen and (max-width: 768px) {
+  .mdc-dialog__container > .mdc-dialog__surface > .mdc-dialog__title {
+    padding: 0px 14px;
+    font-weight: 600;
+  }
+  .mdc-dialog__container > .mdc-dialog__surface > .mdc-dialog__title:before {
+    display: none;
+  }
+}
+@media only screen and (max-width: 768px) {
+  .mdc-dialog__container > .mdc-dialog__surface > .mdc-dialog__content {
+    padding: 4px 8px;
+  }
+}
+@media only screen and (max-width: 768px) {
+  .mdc-dialog > .mdc-dialog__scrim {
+    background: white;
+  }
+}
+.mdc-button > .material-icons:first-child {
+  margin-right: 0.3em;
+}
+.mdc-button.small {
+  font-size: 11px;
+}
+.mdc-button.small > .material-icons {
+  font-size: 1.5em;
+}
+.mdc-icon-button.small {
+  width: 1.4em;
+  height: 1.4em;
+  font-size: 1.6em;
+  padding: 0px;
+}
+.inline {
+  display: inline-block;
+  vertical-align: middle;
+  fill: currentColor;
+}
+.l-column.l-full {
+  white-space: nowrap;
+}
+.layout-columns {
+  display: flex;
+  flex-direction: row;
+}
+.layout-columns > .l-full {
+  width: 100%;
+}
+.layout-columns > .l-full img {
+  vertical-align: middle;
+}
+.layout-columns > .l-full table {
+  white-space: nowrap;
+}
+.layout-rows {
+  display: flex;
+  flex-direction: column;
+}
+.material-icons {
+  vertical-align: middle;
+}
+.material-icons.inline {
+  font-size: 1.5em;
+}
+.material-icons.size-text {
+  font-size: 1em;
+}
+.touch-action {
+  cursor: pointer !important;
+  pointer-events: all !important;
+  user-select: none;
+  will-change: transform;
+}
+.touch-action:active {
+  transform: translateY(1px);
+}
+.touch-noselect {
+  user-select: none;
+}
+.touch-noaction {
+  pointer-events: none;
+}
+.text-nowrap {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.text-right {
+  text-align: right;
+}
+.progress-line,
+.progress-line:before {
+  height: 3px;
+  width: 100%;
+  margin: 0;
+}
+.progress-line {
+  background-color: #b3d4fc;
+  display: -webkit-flex;
+  display: flex;
+}
+.progress-line:before {
+  background-color: #3f51b5;
+  content: '';
+  -webkit-animation: running-progress 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: running-progress 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+@-webkit-keyframes running-progress {
+  0% {
+    margin-left: 0px;
+    margin-right: 100%;
+  }
+  50% {
+    margin-left: 25%;
+    margin-right: 0%;
+  }
+  100% {
+    margin-left: 100%;
+    margin-right: 0;
+  }
+}
+@keyframes running-progress {
+  0% {
+    margin-left: 0px;
+    margin-right: 100%;
+  }
+  50% {
+    margin-left: 25%;
+    margin-right: 0%;
+  }
+  100% {
+    margin-left: 100%;
+    margin-right: 0;
+  }
+}
+.radio-buttons {
+  display: inline-block;
+}
+.radio-buttons > button {
+  border-bottom: 3px solid transparent;
+}
+.radio-buttons > button.active {
+  border-bottom-color: #00ff00;
+  pointer-events: none;
+}
+.radio-buttons > button > .badge {
+  display: inline-block;
+  padding: 5px 7px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  font-weight: bold;
+  line-height: 1em;
+  vertical-align: middle;
+  margin-left: 10px;
+  background: transparent;
+  border-radius: 0px;
+}
+.w100 {
+  width: 100%;
+}
+.w100f {
+  width: 100%;
+  flex: 1;
+}
+.h100 {
+  height: 100%;
+}
+.h100f {
+  height: 100%;
+  flex: auto;
+  overflow: hidden;
+}
+/*# sourceMappingURL=main.less.map */
 .row {
   display: flex;
   flex-direction: row;

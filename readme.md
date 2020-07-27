@@ -33,7 +33,7 @@ const channel = Monit.createChannel('foo', {
         { name: 'Timestamp', type: 'date', sortable: true, groupable: true },
     ]
 });
-channel.write(`Lorem ipsum,123,${Date.now()}`);
+channel.write(`Lorem ipsum, 123, ${Date.now()}`);
 ```
 
 ## Dev

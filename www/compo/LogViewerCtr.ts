@@ -1,14 +1,15 @@
-
-
 declare var axios;
 
 export class LogViewerCtr {
 
-    channels: IChannel
 
     constructor (name: string) {
 
     }
 
+    @mask.deco.slotPrivate()
+    doFlush () {
+        axios.post('./api/logs/flush')
+    }
 
 }
