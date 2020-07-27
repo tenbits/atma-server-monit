@@ -12,8 +12,11 @@ export namespace Monit {
         let basicAuth = require('express-basic-auth');
         let base = 'file://' + __dirname.replace(/\\/g, '/').replace(/[^\/]+\/?$/, 'www/');
 
-        let pss = app.config.$get('monit.pss') ?? (Math.round(Math.random() * 10000000));
-        let basicAuthFn = basicAuth({
+        let pss = app.config.$get('monit.pss') ?? app.config.$get('server.monit.pss');
+        let noPssFn = function (req, res, next) {
+            next(new Error(`Password not set in 'monit.pss' nor in 'server.monit.pss'`));
+        };
+        let basicAuthFn = pss == null ? noPssFn : basicAuth({
             users: { [pss]: pss },
             challenge: true,
             realm: 'MonitPss'

@@ -125,7 +125,6 @@ export class LoggerFile {
             }
         }
         let lastPath = i > - 1 ? Path.resolve(directory, filename) : null;
-        console.log('INIT', filename, lastPath);
         if (lastPath != null && rgx.test(filename)) {
             let match = rgx.exec(filename);
 
