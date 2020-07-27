@@ -26,7 +26,7 @@ define ChannelView extends ChannelViewCtr {
         listen (this.viewTick) > table.data-table {
             thead > tr {
                 for (col of this.columns) {
-                    th {
+                    th [style.width]='~[bind: col.width + "px"]' {
                         span._filter > '~[bind: col.q]'
                         br;
                         span._title {

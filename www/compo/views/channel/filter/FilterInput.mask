@@ -17,6 +17,15 @@ define FilterInput extends FilterInputCtr {
             input placeholder='Value' {
                 dualbind value='value';
             }
+
+            blockquote {
+                p {
+                    tt > 'number: >12, =5, !=4, <=50'
+                }
+                p {
+                    tt > 'text: !(Query)'
+                }
+            }
         }
         @footer {
             Button style='color: #555' x-tap='close' > 'Close'

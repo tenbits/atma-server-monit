@@ -1,12 +1,12 @@
 {
     "name": "atma-server-monit",
-    "version": "1.0.22",
+    "version": "1.0.23",
     "description": "Application Monitor Layer",
     "author": "Alex Kit (alex.kit@atmajs.com)",
     "main": "lib/index.js",
     "license": "MIT",
     "scripts": {
-        "build": "app-bundler && npm run build-dts",
+        "build": "app-bundler && npm run build-dts && cd www && npm run build",
         "watch": "app-bundler --watch",
         "example": "node examples/server --TEST --debug --monit.pss foo",
         "release": "echo atma pub -m \"Message\"",

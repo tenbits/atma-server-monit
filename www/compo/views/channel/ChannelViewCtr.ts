@@ -10,6 +10,7 @@ interface IUiColumn {
     q: string
     sorted: boolean
     sortDir: 'asc' | 'desc'
+    width?: number
 }
 interface IUiDay {
     day: Date
@@ -49,11 +50,11 @@ export class ChannelViewCtr {
         limit?: number
     } = {
         offset: 0,
-        limit: 100
+        limit: 1000
     }
     pager = {
         offset: 0,
-        limit: 100,
+        limit: 1000,
         page: 0,
         totalPages: 0,
         totalItems: 0
@@ -173,10 +174,14 @@ export class ChannelViewCtr {
         }
 
         this.rows = rows;
+
+        let widths = this.columns.map(x => 0);
+
         this.formattedRows = rows.map(row => {
             return row.map((val, index) => {
                 let type = columns[index].type;
                 let { display, isTruncated } = getDisplayValue(val, type);
+                widths[index] = Math.max(widths[index], display?.length ?? 0);
                 return {
                     value: val,
                     display,
@@ -184,6 +189,15 @@ export class ChannelViewCtr {
                 };
             })
         });
+
+        widths.forEach((count, idx) => {
+            if (count > 50) {
+                return;
+            }
+            let w = Math.max(count, 10);
+            this.columns[idx].width = w * 9;
+        })
+
         this.isViewBusy = false;
 
         function getDisplayValue (val, type) {

@@ -1,7 +1,7 @@
 .data-table {
     width: 100%;
     max-width: 100%;
-    // table-layout: fixed;
+    table-layout: fixed;
     font-family: monospace;
     border-collapse: collapse;
 
@@ -40,6 +40,9 @@
     }
     td {
         padding: 4px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
 
         &.date {
             white-space: nowrap;

@@ -185,6 +185,15 @@ define FilterInput extends FilterInputCtr {
             input placeholder='Value' {
                 dualbind value='value';
             }
+
+            blockquote {
+                p {
+                    tt > 'number: >12, =5, !=4, <=50'
+                }
+                p {
+                    tt > 'text: !(Query)'
+                }
+            }
         }
         @footer {
             Button style='color: #555' x-tap='close' > 'Close'
@@ -223,7 +232,7 @@ define ChannelView extends ChannelViewCtr {
         listen (this.viewTick) > table.data-table {
             thead > tr {
                 for (col of this.columns) {
-                    th {
+                    th [style.width]='~[bind: col.width + "px"]' {
                         span._filter > '~[bind: col.q]'
                         br;
                         span._title {

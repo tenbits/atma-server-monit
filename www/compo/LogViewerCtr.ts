@@ -8,8 +8,15 @@ export class LogViewerCtr {
     }
 
     @mask.deco.slotPrivate()
-    doFlush () {
-        axios.post('./api/logs/flush')
+    async doFlush () {
+        await axios.post('./api/logs/flush');
+        location.reload();
+    }
+
+    @mask.deco.slotPrivate()
+    async goHome () {
+        let path = location.href;
+        location.href = path.replace(/\?.+$/, '');
     }
 
 }

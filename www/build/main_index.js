@@ -18,6 +18,15 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -26,12 +35,24 @@ define(["require", "exports"], function (require, exports) {
         constructor(name) {
         }
         doFlush() {
-            axios.post('./api/logs/flush');
+            return __awaiter(this, void 0, void 0, function* () {
+                yield axios.post('./api/logs/flush');
+                location.reload();
+            });
+        }
+        goHome() {
+            return __awaiter(this, void 0, void 0, function* () {
+                let path = location.href;
+                location.href = path.replace(/\?.+$/, '');
+            });
         }
     }
     __decorate([
         mask.deco.slotPrivate()
     ], LogViewerCtr.prototype, "doFlush", null);
+    __decorate([
+        mask.deco.slotPrivate()
+    ], LogViewerCtr.prototype, "goHome", null);
     exports.LogViewerCtr = LogViewerCtr;
 });
 //# sourceMappingURL=LogViewerCtr.js.map
@@ -127,11 +148,11 @@ define(["require", "exports", "../../../../src/utils/date"], function (require, 
             this.days = null;
             this.query = {
                 offset: 0,
-                limit: 100
+                limit: 1000
             };
             this.pager = {
                 offset: 0,
-                limit: 100,
+                limit: 1000,
                 page: 0,
                 totalPages: 0,
                 totalItems: 0
@@ -244,16 +265,26 @@ define(["require", "exports", "../../../../src/utils/date"], function (require, 
                     this.columns = columns;
                 }
                 this.rows = rows;
+                let widths = this.columns.map(x => 0);
                 this.formattedRows = rows.map(row => {
                     return row.map((val, index) => {
+                        var _a;
                         let type = columns[index].type;
                         let { display, isTruncated } = getDisplayValue(val, type);
+                        widths[index] = Math.max(widths[index], (_a = display === null || display === void 0 ? void 0 : display.length) !== null && _a !== void 0 ? _a : 0);
                         return {
                             value: val,
                             display,
                             type
                         };
                     });
+                });
+                widths.forEach((count, idx) => {
+                    if (count > 50) {
+                        return;
+                    }
+                    let w = Math.max(count, 10);
+                    this.columns[idx].width = w * 9;
                 });
                 this.isViewBusy = false;
                 function getDisplayValue(val, type) {
@@ -381,7 +412,7 @@ define(["require", "exports", "../../../../src/utils/date"], function (require, 
         mask._.formatDate = Utils.formatDate;
     })(Utils || (Utils = {}));
 });
-//# sourceMappingURL=ChannelViewCtr.js.map
+//# sourceMappingURL=LogViewerCtr.js.map
 //# sourceMappingURL=ChannelViewCtr.ts.map
 include.getResourceById('/compo/views/channel/ChannelViewCtr.ts', 'js').readystatechanged(3);
 include.setCurrent({ url: '/compo/views/channel/filter/FilterInputCtr.ts', aliases: [] });
