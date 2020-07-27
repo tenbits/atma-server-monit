@@ -4,6 +4,7 @@
         "build": "app-bundler"
     },
     "dependencies": {
+        "alot": "^0.2.81",
         "axios": "^0.19.2",
         "compo-views": "^0.10.44",
         "includejs": "^0.15.43",

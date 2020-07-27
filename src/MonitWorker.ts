@@ -118,7 +118,7 @@ export class MonitWorker {
         });
         events.on('HandlerError', (event, req, res) => {
             this.loggers.requests.write(
-                `${new Date().toISOString()}, ${event.status}, ${event.method}, ${Csv.escape(event.url)}, ${event.time}ms, ${event.user ?? ''}, ${ Err.serializeError(event.error ?? event.message)}`
+                `${new Date().toISOString()}, ${event.status}, ${event.method}, ${Csv.escape(event.url)}, ${event.time}ms, ${event.user ?? ''}, ${event.ip ?? ''}, ${ Err.serializeError(event.error ?? event.message)}`
             );
             let status = event.status ?? (event.error as any)?.statusCode ?? 500;
             if (status <= 404 || this.slack == null) {
@@ -136,7 +136,7 @@ export class MonitWorker {
         });
         events.on('HandlerSuccess', (event, req, res) => {
             this.loggers.requests.write(
-                `${new Date().toISOString()}, ${event.status}, ${event.method}, ${Csv.escape(event.url)}, ${event.time}ms, ${event.user ?? ''}`
+                `${new Date().toISOString()}, ${event.status}, ${event.method}, ${Csv.escape(event.url)}, ${event.time}ms, ${event.user ?? ''}, ${event.ip ?? ''}`
             );
         });
     }

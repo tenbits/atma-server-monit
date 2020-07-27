@@ -3,7 +3,7 @@ import { ICsvColumn } from '../../src/model/ICsvColumn';
 import { GetChannelParams } from './LogsReader';
 import { DirectoryReader } from './DirectoryReader';
 import { Table } from '../../src/model/Table';
-import alot = require('alot');
+import alot from 'alot'
 
 export class ChannelReader {
     constructor (public channel: LoggerFile) {

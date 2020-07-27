@@ -11,6 +11,9 @@ export class DirectoryReader {
         if (dir.endsWith('/') === false) {
             dir += '/';
         }
+        if (/file:/.test(dir) === false) {
+            dir = 'file://' + dir;
+        }
         let files = await Directory.readFiles(dir);
 
         let readers = files.map(file => {
