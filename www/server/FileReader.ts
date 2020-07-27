@@ -61,7 +61,6 @@ export class FileReader {
             // Cache everything, but not for today
             this.table = table;
         }
-        console.log('READ', 'cached', this.table?.length);
         return table;
     }
 
@@ -108,14 +107,35 @@ export namespace Csv {
         let i = -1;
         while (i < row.length) {
             let c = str[i];
+            if (c === ' ') {
+                i++;
+                continue;
+            }
             let match: '"' | "'" | ',' = ',';
             let skipAfterMatch = 1;
+            let skipBefore = 0;
+            if (c === ',') {
+                let nextI = i + 1;
+                while(nextI < str.length) {
+                    let nextC = str[nextI];
+                    if (nextC === ' ') {
+                        nextI++;
+                        continue;
+                    }
+                    if (nextC === '"' || nextC === "'") {
+                        c = nextC;
+                        i = nextI;
+                    }
+                    break;
+                }
+            }
 
             if (c === '"' || c === "'") {
                 match = c;
                 skipAfterMatch = 2;
+                skipBefore = 1;
             }
-            let [ resultI, resultVal ] = readToChar(row, match, i + 1);
+            let [ resultI, resultVal ] = readToChar(row, match, i + skipBefore);
             cells.push(resultVal);
             i = resultI + skipAfterMatch;
         }

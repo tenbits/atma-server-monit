@@ -34,7 +34,7 @@ declare module 'atma-server-monit/fs/LoggerFile' {
         static create(key: string, opts: ILoggerOpts): LoggerFile;
         protected constructor();
         writeRow(cells: any[]): void;
-        write(message: string): void;
+        write(mix: string | any[]): void;
         flush(): void;
         protected init(opts: ILoggerOpts): void;
     }

@@ -64,10 +64,15 @@ export class LoggerFile {
         }
         this.write(row);
     }
-    write(message: string): void {
+    write(mix: string | any[]): void {
         if (this._file == null) {
             throw new Error('Create the instance via static::create');
         }
+        if (typeof mix !== 'string' && Array.isArray(mix)) {
+            this.writeRow(mix);
+            return;
+        }
+        let message = mix;
 
         this._file.write(message);
 
