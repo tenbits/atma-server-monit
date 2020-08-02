@@ -8,10 +8,10 @@ declare module 'atma-server-monit' {
     import { LoggerFile } from 'atma-server-monit/fs/LoggerFile'; 
      import { Application } from 'atma-server';
     import { IMonitOptions } from 'atma-server-monit/MonitWorker';
-    import { ILoggerOpts } from 'atma-server-monit/fs/LoggerFile';
+    import { ILoggerOpts, EmptyLoggerFile } from 'atma-server-monit/fs/LoggerFile';
     export namespace Monit {
             function start(app: Application, opts: IMonitOptions): void;
-            function createChannel(name: string, opts?: Partial<ILoggerOpts>): LoggerFile;
+            function createChannel(name: string, opts?: Partial<ILoggerOpts>): EmptyLoggerFile | LoggerFile;
             function flush(): void;
             function error(error: Error): void;
     }
@@ -28,7 +28,17 @@ declare module 'atma-server-monit/fs/LoggerFile' {
         fields?: ICsvColumn[];
         columns?: ICsvColumn[];
     }
-    export class LoggerFile {
+    export interface ILogger {
+        writeRow(cells: any[]): any;
+        write(mix: string | any[]): void;
+        flush(): any;
+    }
+    export class EmptyLoggerFile implements ILogger {
+        writeRow(cells: any[]): void;
+        write(mix: string | any[]): void;
+        flush(): void;
+    }
+    export class LoggerFile implements ILogger {
         directory: string;
         opts: ILoggerOpts;
         static create(key: string, opts: ILoggerOpts): LoggerFile;

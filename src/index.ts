@@ -1,6 +1,6 @@
 import { Application, LifecycleEvents, StaticContent } from 'atma-server'
 import { MonitWorker, IMonitOptions } from './MonitWorker';
-import { ILoggerOpts } from './fs/LoggerFile';
+import { ILoggerOpts, EmptyLoggerFile } from './fs/LoggerFile';
 
 
 export namespace Monit {
@@ -59,7 +59,7 @@ export namespace Monit {
         app.handlers.registerSubApp('atma/monit', subApp, null);
     }
     export function createChannel (name: string, opts?: Partial<ILoggerOpts>) {
-        return monit.createChannel(name, opts);
+        return monit?.createChannel(name, opts) ?? new EmptyLoggerFile();
     }
     export function flush () {
         monit?.flush();

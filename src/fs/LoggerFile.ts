@@ -19,7 +19,24 @@ export interface ILoggerOpts {
     //@obsolete Use fields
     columns?: ICsvColumn[]
 }
-export class LoggerFile {
+export interface ILogger {
+    writeRow (cells: any[])
+    write(mix: string | any[]): void
+    flush ()
+}
+
+export class EmptyLoggerFile implements ILogger {
+    writeRow(cells: any[]) {
+
+    }
+    write(mix: string | any[]): void {
+
+    }
+    flush() {
+
+    }
+}
+export class LoggerFile implements ILogger {
     public directory: string;
     public opts: ILoggerOpts;
 
