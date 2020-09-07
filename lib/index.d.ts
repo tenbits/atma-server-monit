@@ -25,6 +25,7 @@ declare module 'atma-server-monit/fs/LoggerFile' {
         fileBytesMax?: number;
         fileMessagesMax?: number;
         messageBufferMax?: number;
+        writeTimeout?: number;
         fields?: ICsvColumn[];
         columns?: ICsvColumn[];
     }
@@ -44,6 +45,7 @@ declare module 'atma-server-monit/fs/LoggerFile' {
         static create(key: string, opts: ILoggerOpts): LoggerFile;
         protected constructor();
         writeRow(cells: any[]): void;
+        writeRows(cellsMany: any[][]): void;
         write(mix: string | any[]): void;
         flush(): void;
         protected init(opts: ILoggerOpts): void;

@@ -117,7 +117,7 @@ define(["require", "exports"], function (require, exports) {
     }
     exports.date_sameDate = date_sameDate;
 });
-//# sourceMappingURL=ChannelViewCtr.js.map
+//# sourceMappingURL=LogViewerCtr.js.map
 //# sourceMappingURL=date.ts.map
 include.getResourceById('/../src/utils/date.ts', 'js').readystatechanged(3);
 include.setCurrent({ url: '/compo/views/channel/ChannelViewCtr.ts', aliases: [] });

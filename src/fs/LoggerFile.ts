@@ -14,6 +14,7 @@ export interface ILoggerOpts {
     fileBytesMax?: number
     fileMessagesMax?: number
     messageBufferMax?: number
+    writeTimeout?: number
     fields?: ICsvColumn[]
 
     //@obsolete Use fields
@@ -45,6 +46,7 @@ export class LoggerFile implements ILogger {
     private _file: File;
     private _todayMid = date_getMidnight(new Date());
     private _tomorrowMid = date_getMidnight(new Date(), 1);
+    private _writeTimer = null;
 
     static create (key: string, opts: ILoggerOpts) {
 
@@ -55,31 +57,17 @@ export class LoggerFile implements ILogger {
         return logger;
     }
 
-    protected constructor () {}
+    protected constructor () {
+        this.onTimeout = this.onTimeout.bind(this);
+    }
 
     writeRow (cells: any[]) {
-        let fields = this.opts.fields;
-        if (fields == null) {
-            let row = cells.map(Csv.escape).join(', ');
-            this.write(row);
-            return;
-        }
-        let row = '';
-        for (let i = 0; i < fields.length; i++) {
-            if (i !== 0) row += ', ';
-
-            let val = cells[i];
-            if (val instanceof Date) {
-                row += val.toISOString();
-                continue;
-            }
-            if (typeof val === 'number') {
-                row += val;
-                continue;
-            }
-            row += Csv.escape(val);
-        }
+        let row = this.serializeRow(cells);
         this.write(row);
+    }
+    writeRows (cellsMany: any[][]) {
+        let rows = cellsMany.map(cells => this.serializeRow(cells));
+        this.write(rows.join('\n'));
     }
     write(mix: string | any[]): void {
         if (this._file == null) {
@@ -89,28 +77,29 @@ export class LoggerFile implements ILogger {
             this.writeRow(mix);
             return;
         }
+
         let message = mix;
+        if (Date.now() >= this._tomorrowMid) {
+            this._todayMid = this._tomorrowMid;
+            this._tomorrowMid = date_getMidnight(new Date(), 1);
+            this._file = this.nextFile();
+        }
+        if (this._file.size >= this.opts.fileBytesMax) {
+            this._idx++;
+            this._file = this.nextFile();
+        }
 
         this._file.write(message);
 
         if (this._file.buffer.length > this.opts.messageBufferMax) {
-            this._file.flushAsync();
+            this.flushAsync();
         }
-
-        if (this._file.size >= this.opts.fileBytesMax) {
-            this._idx++;
-            this.nextFile();
-            return;
-        }
-        if (Date.now() >= this._tomorrowMid) {
-            this._todayMid = this._tomorrowMid;
-            this._tomorrowMid = date_getMidnight(new Date(), 1);
-            this.nextFile();
-            return;
+        if (this._writeTimer == null && this.opts.writeTimeout !== 0) {
+            this._writeTimer = setTimeout(this.onTimeout, this.opts.writeTimeout)
         }
     }
     flush () {
-        this._file.flushSync();
+        this.flushSync();
     }
     protected init (opts: ILoggerOpts) {
         this.opts = opts;
@@ -128,6 +117,9 @@ export class LoggerFile implements ILogger {
         }
         if (opts.messageBufferMax == null) {
             opts.messageBufferMax = 50;
+        }
+        if (opts.writeTimeout == null) {
+            opts.writeTimeout = 10 * 1000;
         }
 
         let directory = opts.directory;
@@ -164,7 +156,7 @@ export class LoggerFile implements ILogger {
         }
         if (this._file.size >= opts.fileBytesMax) {
             this._idx++;
-            this.nextFile();
+            this._file = this.nextFile();
         }
         if (files.length >= opts.fileCountMax) {
             files
@@ -182,7 +174,7 @@ export class LoggerFile implements ILogger {
 
     private nextFile() {
         if (this._file != null) {
-            this._file.flushSync();
+            this.flushSync();
         }
 
         const d = new Date();
@@ -190,6 +182,46 @@ export class LoggerFile implements ILogger {
         const filename = `${ d.getTime() }_${this._idx}__${Formatter(d, 'MM-dd')}.csv`;
         const path = Path.resolve(this.opts.directory, filename);
         return new File(path, this.opts);
+    }
+    private serializeRow (cells: any[]) {
+        let fields = this.opts.fields;
+        if (fields == null) {
+            let row = cells.map(Csv.escape).join(', ');
+            return row;
+        }
+        let row = '';
+        for (let i = 0; i < fields.length; i++) {
+            if (i !== 0) row += ', ';
+
+            let val = cells[i];
+            if (val instanceof Date) {
+                row += val.toISOString();
+                continue;
+            }
+            if (typeof val === 'number') {
+                row += val;
+                continue;
+            }
+            row += Csv.escape(val);
+        }
+        return row;
+    }
+    private onTimeout () {
+        this.flushAsync();
+    }
+    private flushAsync () {
+        if (this._writeTimer != null) {
+            clearTimeout(this._writeTimer);
+            this._writeTimer = null;
+        }
+        this._file.flushAsync();
+    }
+    private flushSync () {
+        if (this._writeTimer != null) {
+            clearTimeout(this._writeTimer);
+            this._writeTimer = null;
+        }
+        this._file.flushSync();
     }
 }
 
