@@ -14,10 +14,10 @@ export class ChannelReader {
         let readers = await directory.readFiles();
 
         let days = alot(readers)
-            .sortBy(x => x.day.valueOf(), 'asc')
+            .sortBy(x => x.day.valueOf(), 'desc')
             .map(reader => {
                 return {
-                    day: reader.day
+                    day: reader.day.serialize()
                 };
             })
             .toArray();
@@ -37,18 +37,19 @@ export class ChannelReader {
 
         let channel = this.channel;
         let fields: ICsvColumn[] = channel.opts.fields ?? (channel.opts as any).columns;
-        if (fields == null) {
-            throw new Error(`Channel ${query.key} has no fields defined`);
-        }
 
         let directory = DirectoryReader.create(channel)
         let readers = await directory.readFiles();
 
         readers = readers.filter(reader => {
-            if (reader.day > rangeEnd) {
+            if (query.day != null) {
+                return query.day.isEqual(reader.day);
+            }
+
+            if (reader.day.isAfter(rangeEnd)) {
                 return false;
             }
-            if (reader.dayEnd < rangeStart) {
+            if (reader.day.isBefore(rangeStart)) {
                 return false;
             }
             return true;
@@ -62,7 +63,15 @@ export class ChannelReader {
             })
             .toArrayAsync();
 
-
+        if (fields == null) {
+            fields = rows?.[0]?.map((x, idx) => {
+                return {
+                    idx: idx,
+                    name: '',
+                    type: 'string'
+                }
+            });
+        }
         let table = new Table(fields, rows);
         return {
             columns: fields,

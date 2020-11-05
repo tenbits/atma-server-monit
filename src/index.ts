@@ -8,6 +8,7 @@ export namespace Monit {
 
     export function start (app: Application, opts: IMonitOptions) {
         monit = new MonitWorker(app.lifecycle, opts);
+        monit.restoreChannelsAsync();
 
         let basicAuth = require('express-basic-auth');
         let base = 'file://' + __dirname.replace(/\\/g, '/').replace(/[^\/]+\/?$/, 'www/');

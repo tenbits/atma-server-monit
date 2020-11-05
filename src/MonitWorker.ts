@@ -3,6 +3,8 @@ import { LoggerFile, ILoggerOpts } from './fs/LoggerFile';
 import { Csv } from './utils/csv';
 import { LifecycleEvent, LifecycleEvents } from 'atma-server/HttpApplication/LifecycleEvents';
 import { Err } from './utils/err';
+import { dir_readAsync } from './fs/fs';
+import * as alot from 'alot';
 
 
 export interface IMonitOptions {
@@ -158,5 +160,18 @@ export class MonitWorker {
         for (let key in this.loggers) {
             this.loggers[key].flush();
         }
+    }
+
+    async restoreChannelsAsync () {
+        let channels = Object.keys(this.loggers);
+        let files = await dir_readAsync(this.opts.directory);
+        await alot(files).forEachAsync(async dirName => {
+            if (channels.some(name => name === dirName)) {
+                return;
+            }
+            let channel = await LoggerFile.restore(this.opts.directory, dirName);
+
+            this.loggers[dirName] = channel;
+        }).toArrayAsync();
     }
 }

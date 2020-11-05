@@ -1,5 +1,6 @@
 import { FilterInputCtr } from './filter/FilterInputCtr';
-import { date_getMidnight } from '../../../../src/utils/date';
+import { date_getMidnight, date_nextDay } from '../../../../src/utils/date';
+import { DayDate } from '../../../../src/model/DayDate';
 
 
 declare var axios;
@@ -13,7 +14,7 @@ interface IUiColumn {
     width?: number
 }
 interface IUiDay {
-    day: Date
+    day: DayDate
     title: string
 }
 
@@ -43,14 +44,13 @@ export class ChannelViewCtr {
             q: string
         }[]
 
-        rangeStart?: Date
-        rangeEnd?: Date
+        day?: DayDate
 
         offset?: number
         limit?: number
     } = {
         offset: 0,
-        limit: 1000
+        limit: 1000,
     }
     pager = {
         offset: 0,
@@ -68,7 +68,7 @@ export class ChannelViewCtr {
 
         let days = await this.loadDays();
 
-        this.query.rangeStart = days?.[0]?.day ?? date_getMidnight(new Date());
+        this.query.day = days?.[0]?.day ?? DayDate.now();
         this.days = days;
         await this.loadData();
 
@@ -128,8 +128,8 @@ export class ChannelViewCtr {
     }
 
     @mask.deco.slotPrivate()
-    async onDaySelected (sender, selected) {
-        this.query.rangeStart = selected.day;
+    async onDaySelected (sender, selected: QueryCtr['_selected']) {
+        this.query.day = selected.day;
         this.query.offset = 0;
         await this.loadData();
     }
@@ -144,18 +144,30 @@ export class ChannelViewCtr {
         await this.loadData();
     }
 
-    private async loadDays() {
+    private async loadDays(): Promise<IUiDay[]> {
         let resp = await axios.get(`./api/logs/channel/${this.name}/days`);
         let days = resp.data;
-        return days;
+
+        return days.map(x => {
+            let day = new DayDate(x.day)
+            return {
+                day,
+                title: day.format('dd-MM')
+            }
+        });
     }
     private async loadData() {
         this.isViewBusy = true;
 
-        let params = Object.assign({}, this.query);
-        if (params.columnFilters) {
-            params.columnFilters = <any> JSON.stringify(this.query.columnFilters);
+        let params = {
+            ...this.query,
+
+            day: this.query.day.format('yyyy-MM-dd'),
+            columnFilters: this.query.columnFilters
+                ? JSON.stringify(this.query.columnFilters)
+                : void 0
         }
+
         let resp = await axios.get(`./api/logs/channel/${this.name}`, { params });
         let { columns, rows, size } = resp.data;
 
@@ -220,8 +232,8 @@ export class QueryCtr {
 
     }
 
-    protected _selected: { day: Date } = { day: null }
-    protected _days: { day: Date }[]
+    protected _selected: IUiDay = { day: null, title: '' }
+    protected _days: IUiDay[]
     protected _hasBack = false;
     protected _hasForward = false;
 
@@ -231,7 +243,7 @@ export class QueryCtr {
             return;
         }
         this._days = value;
-        this._selected = value[value.length - 1];
+        this._selected = value[0];
         this._hasForward = false;
         this._hasBack = value.length > 1;
     }
@@ -239,7 +251,7 @@ export class QueryCtr {
     @mask.deco.slotPrivate()
     goDay (event, diff: number) {
         let i = this._days.indexOf(this._selected);
-        let iNext = i + diff;
+        let iNext = i - diff;
         if (i === -1 || iNext < 0 || iNext > this._days.length - 1) {
             return;
         }
@@ -263,7 +275,8 @@ export class TextRawViewerCtr {
 
 
     show (cell) {
-        this.model.content = cell.value;
+
+        this.model.content = cell.value?.replace(/\\\\n/g,'\n');
 
         this.dialog.open();
     }

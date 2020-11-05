@@ -13,6 +13,20 @@ export function dir_read(path) {
 };
 
 
+export async function dir_readAsync(path): Promise<string[]> {
+
+    return new Promise((resolve, reject) => {
+        Fs.readdir(path, (err, files) => {
+            if (err != null) {
+                reject(err);
+                return;
+            }
+            resolve(files);
+        });
+    });
+};
+
+
 export function dir_ensure(path) {
     if (Fs.existsSync(path)) {
         return;
@@ -35,6 +49,7 @@ export function file_readSize(path) {
         return 0;
     }
 };
+
 
 export function file_removeAsync(path, callback) {
     Fs.unlink(path, function (error) {

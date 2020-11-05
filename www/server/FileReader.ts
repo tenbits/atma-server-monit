@@ -1,4 +1,5 @@
 import { File } from 'atma-io';
+import { DayDate } from '../../src/model/DayDate';
 import { LoggerFile } from '../../src/fs/LoggerFile';
 import { ICsvColumn } from "../../src/model/ICsvColumn";
 import { date_sameDate } from '../../src/utils/date';
@@ -6,8 +7,8 @@ import { date_sameDate } from '../../src/utils/date';
 const cache = new Map<string, FileReader>();
 
 export class FileReader {
-    day: Date;
-    dayEnd: Date;
+    day: DayDate;
+
     fields: ICsvColumn[]
     cached = true
     table: any[][] = null;
@@ -23,9 +24,7 @@ export class FileReader {
 
     protected constructor(public channel: LoggerFile, public uri: string) {
         this.fields = channel.opts?.fields ?? channel.opts?.columns;
-        if (this.fields == null) {
-            throw new Error(`Logger FileReader: fields are not defined for a channel ${channel.opts.directory}`)
-        }
+
         // const filename = `${ d.getTime() }_${this._idx}__${Formatter(d, 'MM-dd')}.csv`;
         let rgx = /(\d+)_(\d+)__(\d+)\-(\d+)(\-(\d+))?/;
         let match = rgx.exec(uri);
@@ -38,14 +37,11 @@ export class FileReader {
         let month = Number(MM);
         let date = Number(dd);
 
-        this.day = new Date(
+        this.day = new DayDate(
             year,
             month - 1,
-            date,
-            0, 0, 0, 0
+            date
         );
-        this.dayEnd = new Date(this.day);
-        this.dayEnd.setDate(this.dayEnd.getDate() + 1);
 
     }
 
@@ -57,7 +53,7 @@ export class FileReader {
         let file = new File(this.uri, { cached: false });
         let str = await file.readAsync<string>();
         let table = this.parse(str);
-        if (date_sameDate(new Date(), this.day) === false) {
+        if (this.day.isSame(new Date()) === false) {
             // Cache everything, but not for today
             this.table = table;
         }
@@ -76,6 +72,9 @@ export class FileReader {
                 return null;
             }
             let cells = Csv.splitRow(row);
+            if (this.fields == null) {
+                return cells;
+            }
             return this.fields.map((field, index) => {
                 return Csv.parseType(cells[index], field);
             });

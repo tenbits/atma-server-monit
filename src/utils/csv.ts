@@ -1,5 +1,8 @@
 export namespace Csv {
     export function escape (str: string) {
+        if (str == null) {
+            return '';
+        }
         if (typeof str === 'number') {
             return str;
         }

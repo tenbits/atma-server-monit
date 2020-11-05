@@ -2,7 +2,8 @@
     "private": true,
     "version": "0.0.1",
     "scripts": {
-        "build": "app-bundler"
+        "build": "app-bundler",
+        "watch": "app-bundler --watch"
     },
     "dependencies": {
         "alot": "^0.2.81",

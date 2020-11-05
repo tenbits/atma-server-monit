@@ -10,3 +10,10 @@ export function date_sameDate (a: Date, b: Date) {
         && a.getMonth() === b.getMonth()
         && a.getFullYear() === b.getFullYear();
 }
+
+export function date_nextDay (a: Date) {
+    let date = new Date(a);
+    date.setDate(date.getDate() + 1);
+    date.setHours(0, 0 , 0, 0);
+    return date;
+}

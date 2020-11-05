@@ -1,5 +1,5 @@
 export interface ICsvColumn {
-    idx: number
+    idx?: number
     name: string;
     type: 'string' | 'number' | 'date' | 'text' | 'boolean';
 

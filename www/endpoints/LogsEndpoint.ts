@@ -17,7 +17,7 @@ export default class extends HttpEndpoint {
         req
     ) {
         let reader = new LogsReader(this.app.lib.monit);
-        return reader.getChannels();
+        return await reader.getChannels();
     }
 
     async '$post /flush' (
@@ -33,7 +33,7 @@ export default class extends HttpEndpoint {
         @fromUri({ Type: GetChannelParams }) params: GetChannelParams
     ) {
         let reader = new LogsReader(this.app.lib.monit);
-        let channels = reader.getChannels();
+        let channels = await reader.getChannels();
         let channel = channels.find(x => x.name === params.key);
         if (channel == null) {
             throw new HttpError(`Channel not found: ${params.key}`, 400);

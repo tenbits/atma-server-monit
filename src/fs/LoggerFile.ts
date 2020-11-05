@@ -4,6 +4,7 @@ import * as Path from 'path'
 import  * as Formatter from 'atma-formatter'
 import { date_getMidnight } from '../utils/date';
 import { class_Uri } from 'atma-utils';
+import { File } from 'atma-io';
 import { Csv } from '../utils/csv';
 import { ICsvColumn } from '../model/ICsvColumn';
 
@@ -43,10 +44,11 @@ export class LoggerFile implements ILogger {
 
     /** Filecounter, in case we have to create multiple files for a day due to filesize limit */
     private _idx = 0
-    private _file: File;
+    private _file: FileHandler;
     private _todayMid = date_getMidnight(new Date());
     private _tomorrowMid = date_getMidnight(new Date(), 1);
     private _writeTimer = null;
+    private _initialized = false;
 
     static create (key: string, opts: ILoggerOpts) {
 
@@ -54,6 +56,28 @@ export class LoggerFile implements ILogger {
 
         let logger = new LoggerFile();
         logger.init(opts);
+        return logger;
+    }
+
+    static async restore (directory: string, key: string) {
+        let directoryPath = class_Uri.combine(directory, key, '/');
+        let metaPath = class_Uri.combine(directoryPath, 'meta.json');
+
+        let opts = <ILoggerOpts> {
+            directory: directoryPath
+        };
+
+        let meta = {};
+        try {
+            meta = await File.readAsync<object>(metaPath);
+        } catch (error) { /* doesnt exists */ }
+
+        let logger = new LoggerFile();
+        logger.opts = {
+            ...opts,
+            ...meta,
+        };
+        logger.directory = directoryPath;
         return logger;
     }
 
@@ -70,6 +94,9 @@ export class LoggerFile implements ILogger {
         this.write(rows.join('\n'));
     }
     write(mix: string | any[]): void {
+        if (this._initialized === false) {
+            this.init(this.opts);
+        }
         if (this._file == null) {
             throw new Error('Create the instance via static::create');
         }
@@ -102,6 +129,7 @@ export class LoggerFile implements ILogger {
         this.flushSync();
     }
     protected init (opts: ILoggerOpts) {
+        this._initialized = true;
         this.opts = opts;
         if (opts.directory.startsWith('./')) {
             opts.directory = Path.resolve(process.cwd(), opts.directory);
@@ -148,7 +176,7 @@ export class LoggerFile implements ILogger {
                 this._idx = idx;
                 this._file = this.nextFile();
             } else {
-                this._file = new File(lastPath, this.opts, true);
+                this._file = new FileHandler(lastPath, this.opts, true);
             }
         }
         if (this._file == null) {
@@ -181,7 +209,7 @@ export class LoggerFile implements ILogger {
         // TIMESTAMP_FILECOUNTER_READABLETIME
         const filename = `${ d.getTime() }_${this._idx}__${Formatter(d, 'MM-dd')}.csv`;
         const path = Path.resolve(this.opts.directory, filename);
-        return new File(path, this.opts);
+        return new FileHandler(path, this.opts);
     }
     private serializeRow (cells: any[]) {
         let fields = this.opts.fields;
@@ -225,7 +253,7 @@ export class LoggerFile implements ILogger {
     }
 }
 
-class File {
+class FileHandler {
     buffer: string[] = []
     size = 0
 

@@ -5,6 +5,7 @@ import { DirectoryReader } from './DirectoryReader';
 import { Table, ITableColumnFilter } from '../../src/model/Table';
 import { ICsvColumn } from '../../src/model/ICsvColumn';
 import { ChannelReader } from './ChannelReader';
+import { DayDate } from '../../src/model/DayDate';
 
 export class LogsReader {
     constructor (public monit: MonitWorker) {
@@ -62,6 +63,9 @@ export class GetChannelParams {
     sortDir?: 'asc' | 'desc'
 
     columnFilters?: ITableColumnFilter[]
+
+    @Json.type(DayDate)
+    day: DayDate
 
     @Json.type(Date)
     rangeStart?: Date

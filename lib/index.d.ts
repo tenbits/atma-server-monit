@@ -43,6 +43,7 @@ declare module 'atma-server-monit/fs/LoggerFile' {
         directory: string;
         opts: ILoggerOpts;
         static create(key: string, opts: ILoggerOpts): LoggerFile;
+        static restore(directory: string, key: string): Promise<LoggerFile>;
         protected constructor();
         writeRow(cells: any[]): void;
         writeRows(cellsMany: any[][]): void;
@@ -80,12 +81,13 @@ declare module 'atma-server-monit/MonitWorker' {
         writeError(error: Error): void;
         /** Flush all buffered content to disk */
         flush(): void;
+        restoreChannelsAsync(): Promise<void>;
     }
 }
 
 declare module 'atma-server-monit/model/ICsvColumn' {
     export interface ICsvColumn {
-        idx: number;
+        idx?: number;
         name: string;
         type: 'string' | 'number' | 'date' | 'text' | 'boolean';
         summable?: boolean;
