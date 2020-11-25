@@ -220,7 +220,7 @@ define(["require", "exports"], function (require, exports) {
         DayDateUtils.serialize = serialize;
     })(DayDateUtils || (DayDateUtils = {}));
 });
-//# sourceMappingURL=DayDate.js.map
+//# sourceMappingURL=LogViewerCtr.js.map
 //# sourceMappingURL=DayDate.ts.map
 include.getResourceById('/../src/model/DayDate.ts', 'js').readystatechanged(3);
 include.setCurrent({ url: '/compo/views/channel/ChannelViewCtr.ts', aliases: [] });
@@ -521,7 +521,7 @@ define(["require", "exports", "../../../../src/model/DayDate"], function (requir
         mask._.formatDate = Utils.formatDate;
     })(Utils || (Utils = {}));
 });
-//# sourceMappingURL=DayDate.js.map
+//# sourceMappingURL=LogViewerCtr.js.map
 //# sourceMappingURL=ChannelViewCtr.ts.map
 include.getResourceById('/compo/views/channel/ChannelViewCtr.ts', 'js').readystatechanged(3);
 include.setCurrent({ url: '/compo/views/channel/filter/FilterInputCtr.ts', aliases: [] });

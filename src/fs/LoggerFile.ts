@@ -249,7 +249,7 @@ export class LoggerFile implements ILogger {
             clearTimeout(this._writeTimer);
             this._writeTimer = null;
         }
-        this._file.flushSync();
+        this._file?.flushSync();
     }
 }
 
