@@ -6,6 +6,11 @@ import { ILoggerOpts, EmptyLoggerFile } from './fs/LoggerFile';
 export namespace Monit {
     let monit: MonitWorker;
 
+    export async function startLogger (opts: IMonitOptions) {
+        monit = new MonitWorker(null, { ...(opts ?? {}), disableDefaultLoggers: true });
+        await monit.restoreChannelsAsync();
+    }
+
     export function start (app: Application, opts: IMonitOptions) {
         monit = new MonitWorker(app.lifecycle, opts);
         monit.restoreChannelsAsync();

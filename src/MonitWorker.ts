@@ -20,13 +20,13 @@ export class MonitWorker {
 
     slack: SlackClient;
     loggers: {
-        start: LoggerFile
-        requests: LoggerFile
-        errors: LoggerFile
+        start?: LoggerFile
+        requests?: LoggerFile
+        errors?: LoggerFile
 
         [name: string]: LoggerFile
     }
-    constructor (public events: LifecycleEvents, public opts: IMonitOptions) {
+    constructor (public events: LifecycleEvents, public opts: IMonitOptions & { disableDefaultLoggers?: boolean }) {
         if (opts.slack) {
             this.slack = new SlackClient(opts.slack);
         }
@@ -34,7 +34,7 @@ export class MonitWorker {
         const loggerOpts = {
             directory: opts.directory
         };
-        this.loggers = {
+        this.loggers = opts?.disableDefaultLoggers ? {} : {
             start: LoggerFile.create('start', Object.assign(<Partial<ILoggerOpts>>{
                 fields: [
                     {

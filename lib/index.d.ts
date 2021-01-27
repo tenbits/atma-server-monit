@@ -10,6 +10,7 @@ declare module 'atma-server-monit' {
     import { IMonitOptions } from 'atma-server-monit/MonitWorker';
     import { ILoggerOpts, EmptyLoggerFile } from 'atma-server-monit/fs/LoggerFile';
     export namespace Monit {
+            function startLogger(opts: IMonitOptions): Promise<void>;
             function start(app: Application, opts: IMonitOptions): void;
             function createChannel(name: string, opts?: Partial<ILoggerOpts>): EmptyLoggerFile | LoggerFile;
             function flush(): void;
@@ -67,15 +68,19 @@ declare module 'atma-server-monit/MonitWorker' {
     }
     export class MonitWorker {
         events: LifecycleEvents;
-        opts: IMonitOptions;
+        opts: IMonitOptions & {
+            disableDefaultLoggers?: boolean;
+        };
         slack: SlackClient;
         loggers: {
-            start: LoggerFile;
-            requests: LoggerFile;
-            errors: LoggerFile;
+            start?: LoggerFile;
+            requests?: LoggerFile;
+            errors?: LoggerFile;
             [name: string]: LoggerFile;
         };
-        constructor(events: LifecycleEvents, opts: IMonitOptions);
+        constructor(events: LifecycleEvents, opts: IMonitOptions & {
+            disableDefaultLoggers?: boolean;
+        });
         createChannel(name: string, opts?: Partial<ILoggerOpts>): LoggerFile;
         watch(events: LifecycleEvents): void;
         writeError(error: Error): void;
