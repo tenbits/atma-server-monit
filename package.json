@@ -1,6 +1,6 @@
 {
     "name": "atma-server-monit",
-    "version": "1.0.29",
+    "version": "1.0.30",
     "description": "Application Monitor Layer",
     "author": "Alex Kit (alex.kit@atmajs.com)",
     "main": "lib/index.js",

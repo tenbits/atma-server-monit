@@ -7,8 +7,10 @@ export namespace Monit {
     let monit: MonitWorker;
 
     export async function startLogger (opts: IMonitOptions) {
-        monit = new MonitWorker(null, { ...(opts ?? {}), disableDefaultLoggers: true });
-        await monit.restoreChannelsAsync();
+        if (monit == null) {
+            monit = new MonitWorker(null, { ...(opts ?? {}), disableDefaultLoggers: true });
+            await monit.restoreChannelsAsync();
+        }
     }
 
     export function start (app: Application, opts: IMonitOptions) {
