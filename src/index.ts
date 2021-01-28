@@ -1,4 +1,4 @@
-import { Application, LifecycleEvents, StaticContent } from 'atma-server'
+import { Application } from 'atma-server'
 import { MonitWorker, IMonitOptions } from './MonitWorker';
 import { ILoggerOpts, EmptyLoggerFile } from './fs/LoggerFile';
 
@@ -29,6 +29,8 @@ export namespace Monit {
             challenge: true,
             realm: 'MonitPss'
         });
+
+        const { Application, StaticContent } = require('atma-server');
 
         let subApp = new Application({
             base,
