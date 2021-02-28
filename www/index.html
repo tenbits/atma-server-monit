@@ -182,7 +182,7 @@ define FilterInput extends FilterInputCtr {
             }
         }
         @body {
-            input placeholder='Value' {
+            input placeholder='Value' x-press='enter:submit' {
                 dualbind value='value';
             }
 
@@ -196,8 +196,8 @@ define FilterInput extends FilterInputCtr {
             }
         }
         @footer {
-            Button style='color: #555' x-tap='close' > 'Close'
-            Button x-tap='submit' > 'Save'
+            Button style='color: #555' x-tap='close' > '❌ Close'
+            Button x-tap='submit' > '✔️ OK'
         }
     }
 }

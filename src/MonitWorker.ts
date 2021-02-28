@@ -9,6 +9,9 @@ import * as alot from 'alot';
 
 export interface IMonitOptions {
     directory?: string
+    channels?: {
+        [name: string]: ILoggerOpts
+    }
     slack?: {
         token: string
         channelId: string
@@ -105,13 +108,14 @@ export class MonitWorker {
         }
     }
 
-    createChannel (name: string, opts?: Partial<ILoggerOpts>): LoggerFile {
+    createChannel (name: string, opts: Partial<ILoggerOpts> = {}): LoggerFile {
         if (name in this.loggers) {
             return this.loggers[name];
         }
-        return this.loggers[name] = LoggerFile.create(name, Object.assign({
-            directory: this.opts.directory
-        }, opts ?? {}));
+        return this.loggers[name] = LoggerFile.create(name, {
+            directory: this.opts.directory,
+            ...opts
+        });
     }
 
     watch (events: LifecycleEvents) {
@@ -169,9 +173,21 @@ export class MonitWorker {
             if (channels.some(name => name === dirName)) {
                 return;
             }
-            let channel = await LoggerFile.restore(this.opts.directory, dirName);
-
+            let channel = await LoggerFile.restore(
+                this.opts.directory,
+                dirName,
+                this.opts.channels?.[dirName]
+            );
             this.loggers[dirName] = channel;
         }).toArrayAsync();
+
+
+        if (this.opts.channels) {
+            for (let key in this.opts.channels) {
+                if (key in this.loggers === false) {
+                    this.loggers[key] = LoggerFile.prepair(this.opts.channels[key]);
+                }
+            }
+        }
     }
 }

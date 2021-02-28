@@ -44,7 +44,8 @@ declare module 'atma-server-monit/fs/LoggerFile' {
         directory: string;
         opts: ILoggerOpts;
         static create(key: string, opts: ILoggerOpts): LoggerFile;
-        static restore(directory: string, key: string): Promise<LoggerFile>;
+        static prepair(opts: ILoggerOpts): LoggerFile;
+        static restore(directory: string, key: string, options?: ILoggerOpts): Promise<LoggerFile>;
         protected constructor();
         writeRow(cells: any[]): void;
         writeRows(cellsMany: any[][]): void;
@@ -60,6 +61,9 @@ declare module 'atma-server-monit/MonitWorker' {
     import { LifecycleEvent, LifecycleEvents } from 'atma-server/HttpApplication/LifecycleEvents';
     export interface IMonitOptions {
         directory?: string;
+        channels?: {
+            [name: string]: ILoggerOpts;
+        };
         slack?: {
             token: string;
             channelId: string;

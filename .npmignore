@@ -4,4 +4,5 @@
 test/
 ts-temp/
 tools/
+logs/
 www/node_modules

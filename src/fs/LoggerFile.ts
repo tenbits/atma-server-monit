@@ -59,12 +59,20 @@ export class LoggerFile implements ILogger {
         return logger;
     }
 
-    static async restore (directory: string, key: string) {
+    static prepair (opts: ILoggerOpts) {
+
+        let logger = new LoggerFile();
+        logger.opts = opts;
+        return logger;
+    }
+
+    static async restore (directory: string, key: string, options?: ILoggerOpts) {
         let directoryPath = class_Uri.combine(directory, key, '/');
         let metaPath = class_Uri.combine(directoryPath, 'meta.json');
 
         let opts = <ILoggerOpts> {
-            directory: directoryPath
+            directory: directoryPath,
+            ...(options ?? {})
         };
 
         let meta = {};
