@@ -376,10 +376,10 @@ define(["require", "exports", "../../../../src/model/DayDate"], function (requir
                 let widths = this.columns.map(x => 0);
                 this.formattedRows = rows.map(row => {
                     return row.map((val, index) => {
-                        var _a;
-                        let type = columns[index].type;
+                        var _a, _b;
+                        let type = (_a = columns === null || columns === void 0 ? void 0 : columns[index]) === null || _a === void 0 ? void 0 : _a.type;
                         let { display, isTruncated } = getDisplayValue(val, type);
-                        widths[index] = Math.max(widths[index], (_a = display === null || display === void 0 ? void 0 : display.length) !== null && _a !== void 0 ? _a : 0);
+                        widths[index] = Math.max(widths[index], (_b = display === null || display === void 0 ? void 0 : display.length) !== null && _b !== void 0 ? _b : 0);
                         return {
                             value: val,
                             display,
@@ -521,7 +521,7 @@ define(["require", "exports", "../../../../src/model/DayDate"], function (requir
         mask._.formatDate = Utils.formatDate;
     })(Utils || (Utils = {}));
 });
-//# sourceMappingURL=LogViewerCtr.js.map
+//# sourceMappingURL=ChannelViewCtr.js.map
 //# sourceMappingURL=ChannelViewCtr.ts.map
 include.getResourceById('/compo/views/channel/ChannelViewCtr.ts', 'js').readystatechanged(3);
 include.setCurrent({ url: '/compo/views/channel/filter/FilterInputCtr.ts', aliases: [] });

@@ -191,7 +191,8 @@ export class ChannelViewCtr {
 
         this.formattedRows = rows.map(row => {
             return row.map((val, index) => {
-                let type = columns[index].type;
+                let type = columns?.[index]?.type;
+
                 let { display, isTruncated } = getDisplayValue(val, type);
                 widths[index] = Math.max(widths[index], display?.length ?? 0);
                 return {

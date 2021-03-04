@@ -52,10 +52,11 @@ export class LoggerFile implements ILogger {
 
     static create (key: string, opts: ILoggerOpts) {
 
-        opts.directory = class_Uri.combine(opts.directory, key, '/');
-
         let logger = new LoggerFile();
-        logger.init(opts);
+        logger.opts = {
+            ...opts,
+            directory: class_Uri.combine(opts.directory, key, '/'),
+        };
         return logger;
     }
 
