@@ -1,7 +1,7 @@
 export interface ICsvColumn {
     idx?: number
     name: string;
-    type: 'string' | 'number' | 'date' | 'text' | 'boolean';
+    type?: 'string' | 'number' | 'date' | 'text' | 'boolean';
 
     summable?: boolean;
     groupable?: boolean;

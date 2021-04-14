@@ -392,6 +392,13 @@ define(["require", "exports", "../../../../src/model/DayDate"], function (requir
                         return;
                     }
                     let w = Math.max(count, 10);
+                    if (this.columns[idx] == null) {
+                        this.columns[idx] = {
+                            idx: idx,
+                            name: '',
+                            width: 0
+                        };
+                    }
                     this.columns[idx].width = w * 9;
                 });
                 this.isViewBusy = false;
@@ -521,7 +528,7 @@ define(["require", "exports", "../../../../src/model/DayDate"], function (requir
         mask._.formatDate = Utils.formatDate;
     })(Utils || (Utils = {}));
 });
-//# sourceMappingURL=ChannelViewCtr.js.map
+//# sourceMappingURL=LogViewerCtr.js.map
 //# sourceMappingURL=ChannelViewCtr.ts.map
 include.getResourceById('/compo/views/channel/ChannelViewCtr.ts', 'js').readystatechanged(3);
 include.setCurrent({ url: '/compo/views/channel/filter/FilterInputCtr.ts', aliases: [] });

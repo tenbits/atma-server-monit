@@ -8,9 +8,9 @@ declare var axios;
 interface IUiColumn {
     name: string
     idx: number
-    q: string
-    sorted: boolean
-    sortDir: 'asc' | 'desc'
+    q?: string
+    sorted?: boolean
+    sortDir?: 'asc' | 'desc'
     width?: number
 }
 interface IUiDay {
@@ -208,6 +208,13 @@ export class ChannelViewCtr {
                 return;
             }
             let w = Math.max(count, 10);
+            if (this.columns[idx] == null) {
+                this.columns[idx] = {
+                    idx: idx,
+                    name: '',
+                    width: 0
+                };
+            }
             this.columns[idx].width = w * 9;
         })
 

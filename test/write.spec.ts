@@ -17,7 +17,7 @@ UTest({
                         reject(error);
                         return;
                     }
-                    resolve();
+                    resolve(null);
                 });
             });
         };

@@ -1,10 +1,12 @@
+import { LifecycleEvent, LifecycleEvents } from 'atma-server/HttpApplication/LifecycleEvents';
+import { class_Uri } from 'atma-utils';
+import alot from 'alot';
 import { SlackClient } from './Slack';
 import { LoggerFile, ILoggerOpts } from './fs/LoggerFile';
 import { Csv } from './utils/csv';
-import { LifecycleEvent, LifecycleEvents } from 'atma-server/HttpApplication/LifecycleEvents';
 import { Err } from './utils/err';
 import { dir_readAsync } from './fs/fs';
-import * as alot from 'alot';
+import { ChannelReader } from './reader/ChannelReader';
 
 
 export interface IMonitOptions {
@@ -29,7 +31,7 @@ export class MonitWorker {
 
         [name: string]: LoggerFile
     }
-    constructor (public events: LifecycleEvents, public opts: IMonitOptions & { disableDefaultLoggers?: boolean }) {
+    constructor(public events: LifecycleEvents, public opts: IMonitOptions & { disableDefaultLoggers?: boolean }) {
         if (opts.slack) {
             this.slack = new SlackClient(opts.slack);
         }
@@ -38,7 +40,7 @@ export class MonitWorker {
             directory: opts.directory
         };
         this.loggers = opts?.disableDefaultLoggers ? {} : {
-            start: LoggerFile.create('start', Object.assign(<Partial<ILoggerOpts>>{
+            start: LoggerFile.create('start', {
                 fields: [
                     {
                         name: 'Date',
@@ -48,9 +50,10 @@ export class MonitWorker {
                     {
                         name: 'message'
                     }
-                ]
-            }, loggerOpts)),
-            requests: LoggerFile.create('requests', Object.assign(<Partial<ILoggerOpts>>{
+                ],
+                ...loggerOpts
+            }),
+            requests: LoggerFile.create('requests', {
                 fields: [
                     {
                         name: 'Date',
@@ -86,21 +89,22 @@ export class MonitWorker {
                         name: 'Error',
                         type: 'text'
                     }
-                ]
-            }, loggerOpts)),
-            errors: LoggerFile.create('errors', Object.assign(
-                <Partial<ILoggerOpts>>{
-                    fields: [
-                        {
-                            name: 'Date',
-                            type: 'date',
-                            sortable: true
-                        },
-                        {
-                            name: 'Error',
-                        }
-                    ]
-            }, loggerOpts)),
+                ],
+                ...loggerOpts
+            }),
+            errors: LoggerFile.create('errors', {
+                fields: [
+                    {
+                        name: 'Date',
+                        type: 'date',
+                        sortable: true
+                    },
+                    {
+                        name: 'Error',
+                    }
+                ],
+                ...loggerOpts
+            }),
         };
 
         if (events) {
@@ -108,17 +112,22 @@ export class MonitWorker {
         }
     }
 
-    createChannel (name: string, opts: Partial<ILoggerOpts> = {}): LoggerFile {
+    createChannel(name: string, opts: Partial<ILoggerOpts> = {}): LoggerFile {
         if (name in this.loggers) {
             return this.loggers[name];
         }
         return this.loggers[name] = LoggerFile.create(name, {
-            directory: this.opts.directory,
+            // directory could be overwritten in  options
+            directory: class_Uri.combine(this.opts.directory, name, '/'),
             ...opts
         });
     }
 
-    watch (events: LifecycleEvents) {
+    createChannelReader(channel: LoggerFile) {
+        return new ChannelReader(channel);
+    }
+
+    watch(events: LifecycleEvents) {
         events.on('AppStart', (event) => {
             this.slack?.send(event.message);
             this.loggers.start.write(
@@ -127,7 +136,7 @@ export class MonitWorker {
         });
         events.on('HandlerError', (event, req, res) => {
             this.loggers.requests.write(
-                `${new Date().toISOString()}, ${event.status}, ${event.method}, ${Csv.escape(event.url)}, ${event.time}ms, ${event.user ?? ''}, ${event.ip ?? ''}, ${ Err.serializeError(event.error ?? event.message)}`
+                `${new Date().toISOString()}, ${event.status}, ${event.method}, ${Csv.escape(event.url)}, ${event.time}ms, ${event.user ?? ''}, ${event.ip ?? ''}, ${Err.serializeError(event.error ?? event.message)}`
             );
             let status = event.status ?? (event.error as any)?.statusCode ?? 500;
             if (status <= 404 || this.slack == null) {
@@ -150,23 +159,23 @@ export class MonitWorker {
         });
     }
 
-    writeError (error: Error) {
+    writeError(error: Error) {
         this.loggers.errors.write(
             `${new Date().toISOString()}, ${Err.serializeError(error)}`
         );
-        if (this.opts?.filterForSlack(<any> { error })) {
+        if (this.opts?.filterForSlack(<any>{ error })) {
             this.slack?.send(event.toString());
         }
     }
 
     /** Flush all buffered content to disk */
-    flush () {
+    flush() {
         for (let key in this.loggers) {
             this.loggers[key].flush();
         }
     }
 
-    async restoreChannelsAsync () {
+    async restoreChannelsAsync() {
         let channels = Object.keys(this.loggers);
         let files = await dir_readAsync(this.opts.directory);
         await alot(files).forEachAsync(async dirName => {

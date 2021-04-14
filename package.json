@@ -1,6 +1,6 @@
 {
     "name": "atma-server-monit",
-    "version": "1.0.34",
+    "version": "1.0.35",
     "description": "Application Monitor Layer",
     "author": "Alex Kit (alex.kit@atmajs.com)",
     "main": "lib/index.js",
@@ -17,14 +17,13 @@
         "url": "https://github.com/tenbits/atma-loader-ts"
     },
     "peerDependencies": {
-        "atma-server": "^0.4.62"
+        "atma-server": "^0.4.86"
     },
     "devDependencies": {
         "@types/node": "^10.17.17",
         "app-bundler": "0.0.88",
         "atma-io-middleware-yml": "^1.1.25",
         "atma-loader-less": "^1.1.5",
-        "atma-server": "^0.4.75",
         "shellbee": "^0.5.4"
     },
     "app-bundler": {
@@ -83,12 +82,12 @@
     },
     "dependencies": {
         "@slack/web-api": "^5.8.0",
-        "alot": "^0.2.81",
+        "alot": "^0.2.84",
         "atma-formatter": "^0.8.15",
+        "atma-io": "^1.2.36",
         "atma-loader-ts": "^1.1.12",
-        "atma-io": "^1.2.32",
         "atma-utils": "^0.1.37",
-        "class-json": "^0.2.88",
+        "class-json": "^0.3.3",
         "dts-bundle": "^0.7.3",
         "express-basic-auth": "^1.2.0",
         "memd": "^0.2.84",

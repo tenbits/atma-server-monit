@@ -1,6 +1,6 @@
 import { HttpEndpoint, HttpError } from 'atma-server';
-import { LogsReader, GetChannelParams } from '../server/LogsReader';
 import { Directory } from 'atma-io'
+import { GetChannelParams, LogsReader } from '../../src/reader/LogsReader';
 
 
 const { fromUri, fromBody, Types } = HttpEndpoint;

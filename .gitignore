@@ -2,3 +2,4 @@ node_modules
 ts-temp/
 logs/
 test/tmp
+**.idx.json

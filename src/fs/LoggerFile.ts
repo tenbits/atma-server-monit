@@ -51,19 +51,14 @@ export class LoggerFile implements ILogger {
     private _initialized = false;
 
     static create (key: string, opts: ILoggerOpts) {
-
-        let logger = new LoggerFile();
-        logger.opts = {
+        let logger = new LoggerFile({
             ...opts,
-            directory: class_Uri.combine(opts.directory, key, '/'),
-        };
+        });
         return logger;
     }
 
     static prepair (opts: ILoggerOpts) {
-
-        let logger = new LoggerFile();
-        logger.opts = opts;
+        let logger = new LoggerFile(opts);
         return logger;
     }
 
@@ -81,16 +76,15 @@ export class LoggerFile implements ILogger {
             meta = await File.readAsync<object>(metaPath);
         } catch (error) { /* doesnt exists */ }
 
-        let logger = new LoggerFile();
-        logger.opts = {
+        let logger = new LoggerFile({
             ...opts,
             ...meta,
-        };
-        logger.directory = directoryPath;
+        });
         return logger;
     }
 
-    protected constructor () {
+    protected constructor (opts: ILoggerOpts) {
+        this.initOptions(opts);
         this.onTimeout = this.onTimeout.bind(this);
     }
 
@@ -104,7 +98,7 @@ export class LoggerFile implements ILogger {
     }
     write(mix: string | any[]): void {
         if (this._initialized === false) {
-            this.init(this.opts);
+            this.init();
         }
         if (this._file == null) {
             throw new Error('Create the instance via static::create');
@@ -134,11 +128,15 @@ export class LoggerFile implements ILogger {
             this._writeTimer = setTimeout(this.onTimeout, this.opts.writeTimeout)
         }
     }
+    get path () {
+        return this._file?.path;
+    }
+
     flush () {
         this.flushSync();
     }
-    protected init (opts: ILoggerOpts) {
-        this._initialized = true;
+
+    protected initOptions (opts: ILoggerOpts) {
         this.opts = opts;
         if (opts.directory.startsWith('./')) {
             opts.directory = Path.resolve(process.cwd(), opts.directory);
@@ -158,15 +156,16 @@ export class LoggerFile implements ILogger {
         if (opts.writeTimeout == null) {
             opts.writeTimeout = 10 * 1000;
         }
+        this.directory = opts.directory;
+    }
 
-        let directory = opts.directory;
+    protected init () {
+        this._initialized = true;
 
-        dir_ensure(directory);
-
-        this.directory = directory;
+        dir_ensure(this.directory);
 
         const rgx = /^(\d+)_((\d{1,3})_)?/;
-        let files = dir_read(directory).sort();
+        let files = dir_read(this.directory).sort();
         let i = files.length;
         let filename: string;
         while (--i > -1) {
@@ -175,7 +174,7 @@ export class LoggerFile implements ILogger {
                 break;
             }
         }
-        let lastPath = i > - 1 ? Path.resolve(directory, filename) : null;
+        let lastPath = i > - 1 ? Path.resolve(this.directory, filename) : null;
         if (lastPath != null && rgx.test(filename)) {
             let match = rgx.exec(filename);
 
@@ -191,15 +190,15 @@ export class LoggerFile implements ILogger {
         if (this._file == null) {
             this._file = this.nextFile();
         }
-        if (this._file.size >= opts.fileBytesMax) {
+        if (this._file.size >= this.opts.fileBytesMax) {
             this._idx++;
             this._file = this.nextFile();
         }
-        if (files.length >= opts.fileCountMax) {
+        if (files.length >= this.opts.fileCountMax) {
             files
-                .slice(0, files.length - opts.fileCountMax + 1)
+                .slice(0, files.length - this.opts.fileCountMax + 1)
                 .forEach(function (filename) {
-                    file_remove(Path.resolve(directory, filename));
+                    file_remove(Path.resolve(this.directory, filename));
                 });
         }
 
@@ -216,7 +215,7 @@ export class LoggerFile implements ILogger {
 
         const d = new Date();
         // TIMESTAMP_FILECOUNTER_READABLETIME
-        const filename = `${ d.getTime() }_${this._idx}__${Formatter(d, 'MM-dd')}.csv`;
+        const filename = `${ d.getTime() }_${this._idx}__${Formatter(d, 'MM-dd-yyyy')}.csv`;
         const path = Path.resolve(this.opts.directory, filename);
         return new FileHandler(path, this.opts);
     }

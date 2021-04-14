@@ -3,18 +3,61 @@
 //   ../atma-server
 //   ../atma-server/HttpApplication/LifecycleEvents
 //   ../@slack/web-api
+//   ../atma-io
 
 declare module 'atma-server-monit' {
-    import { LoggerFile } from 'atma-server-monit/fs/LoggerFile'; 
-     import { Application } from 'atma-server';
+    import { Application } from 'atma-server';
     import { IMonitOptions } from 'atma-server-monit/MonitWorker';
-    import { ILoggerOpts, EmptyLoggerFile } from 'atma-server-monit/fs/LoggerFile';
+    import { ILoggerOpts, EmptyLoggerFile, LoggerFile } from 'atma-server-monit/fs/LoggerFile';
+    import { ChannelReader } from 'atma-server-monit/reader/ChannelReader';
     export namespace Monit {
-            function startLogger(opts: IMonitOptions): Promise<void>;
-            function start(app: Application, opts: IMonitOptions): void;
-            function createChannel(name: string, opts?: Partial<ILoggerOpts>): EmptyLoggerFile | LoggerFile;
-            function flush(): void;
-            function error(error: Error): void;
+        function startLogger(opts: IMonitOptions): Promise<void>;
+        function start(app: Application, opts: IMonitOptions): void;
+        function createChannel(name: string, opts?: Partial<ILoggerOpts>): EmptyLoggerFile | LoggerFile;
+        function createChannelReader(name: string, opts?: Partial<ILoggerOpts>): ChannelReader;
+        function flush(): void;
+        function error(error: Error): void;
+    }
+}
+
+declare module 'atma-server-monit/MonitWorker' {
+    import { LifecycleEvent, LifecycleEvents } from 'atma-server/HttpApplication/LifecycleEvents';
+    import { SlackClient } from 'atma-server-monit/Slack';
+    import { LoggerFile, ILoggerOpts } from 'atma-server-monit/fs/LoggerFile';
+    import { ChannelReader } from 'atma-server-monit/reader/ChannelReader';
+    export interface IMonitOptions {
+        directory?: string;
+        channels?: {
+            [name: string]: ILoggerOpts;
+        };
+        slack?: {
+            token: string;
+            channelId: string;
+        };
+        filterForSlack?: (event: LifecycleEvent) => boolean;
+    }
+    export class MonitWorker {
+        events: LifecycleEvents;
+        opts: IMonitOptions & {
+            disableDefaultLoggers?: boolean;
+        };
+        slack: SlackClient;
+        loggers: {
+            start?: LoggerFile;
+            requests?: LoggerFile;
+            errors?: LoggerFile;
+            [name: string]: LoggerFile;
+        };
+        constructor(events: LifecycleEvents, opts: IMonitOptions & {
+            disableDefaultLoggers?: boolean;
+        });
+        createChannel(name: string, opts?: Partial<ILoggerOpts>): LoggerFile;
+        createChannelReader(channel: LoggerFile): ChannelReader;
+        watch(events: LifecycleEvents): void;
+        writeError(error: Error): void;
+        /** Flush all buffered content to disk */
+        flush(): void;
+        restoreChannelsAsync(): Promise<void>;
     }
 }
 
@@ -46,63 +89,43 @@ declare module 'atma-server-monit/fs/LoggerFile' {
         static create(key: string, opts: ILoggerOpts): LoggerFile;
         static prepair(opts: ILoggerOpts): LoggerFile;
         static restore(directory: string, key: string, options?: ILoggerOpts): Promise<LoggerFile>;
-        protected constructor();
+        protected constructor(opts: ILoggerOpts);
         writeRow(cells: any[]): void;
         writeRows(cellsMany: any[][]): void;
         write(mix: string | any[]): void;
+        get path(): string;
         flush(): void;
-        protected init(opts: ILoggerOpts): void;
+        protected initOptions(opts: ILoggerOpts): void;
+        protected init(): void;
     }
 }
 
-declare module 'atma-server-monit/MonitWorker' {
-    import { SlackClient } from 'atma-server-monit/Slack';
-    import { LoggerFile, ILoggerOpts } from 'atma-server-monit/fs/LoggerFile';
-    import { LifecycleEvent, LifecycleEvents } from 'atma-server/HttpApplication/LifecycleEvents';
-    export interface IMonitOptions {
-        directory?: string;
-        channels?: {
-            [name: string]: ILoggerOpts;
-        };
-        slack?: {
-            token: string;
-            channelId: string;
-        };
-        filterForSlack?: (event: LifecycleEvent) => boolean;
+declare module 'atma-server-monit/reader/ChannelReader' {
+    import { FileReader } from 'atma-server-monit/reader/FileReader'; 
+     import { LoggerFile } from 'atma-server-monit/fs/LoggerFile';
+    import { ICsvColumn } from 'atma-server-monit/model/ICsvColumn';
+    import { GetChannelParams } from 'atma-server-monit/reader/LogsReader';
+    export interface IChannelLinesQuery {
+            offset?: number;
+            limit?: number;
+            from?: Date;
+            to?: Date;
     }
-    export class MonitWorker {
-        events: LifecycleEvents;
-        opts: IMonitOptions & {
-            disableDefaultLoggers?: boolean;
-        };
-        slack: SlackClient;
-        loggers: {
-            start?: LoggerFile;
-            requests?: LoggerFile;
-            errors?: LoggerFile;
-            [name: string]: LoggerFile;
-        };
-        constructor(events: LifecycleEvents, opts: IMonitOptions & {
-            disableDefaultLoggers?: boolean;
-        });
-        createChannel(name: string, opts?: Partial<ILoggerOpts>): LoggerFile;
-        watch(events: LifecycleEvents): void;
-        writeError(error: Error): void;
-        /** Flush all buffered content to disk */
-        flush(): void;
-        restoreChannelsAsync(): Promise<void>;
-    }
-}
-
-declare module 'atma-server-monit/model/ICsvColumn' {
-    export interface ICsvColumn {
-        idx?: number;
-        name: string;
-        type: 'string' | 'number' | 'date' | 'text' | 'boolean';
-        summable?: boolean;
-        groupable?: boolean;
-        sortable?: boolean;
-        filterable?: boolean;
+    export class ChannelReader {
+            channel: LoggerFile;
+            constructor(channel: LoggerFile);
+            fetch(query: IChannelLinesQuery): Promise<{
+                    rows: any[];
+            }>;
+            getDays(): Promise<{
+                    day: string;
+            }[]>;
+            getData(query: GetChannelParams): Promise<{
+                    columns: ICsvColumn[];
+                    rows: any[][];
+                    size: number;
+            }>;
+            protected getReaders(): Promise<FileReader[]>;
     }
 }
 
@@ -121,6 +144,150 @@ declare module 'atma-server-monit/Slack' {
         });
         login(): Promise<void>;
         send(message: string): Promise<void>;
+    }
+}
+
+declare module 'atma-server-monit/model/ICsvColumn' {
+    export interface ICsvColumn {
+        idx?: number;
+        name: string;
+        type?: 'string' | 'number' | 'date' | 'text' | 'boolean';
+        summable?: boolean;
+        groupable?: boolean;
+        sortable?: boolean;
+        filterable?: boolean;
+    }
+}
+
+declare module 'atma-server-monit/reader/FileReader' {
+    import { File } from 'atma-io';
+    import { DayDate } from 'atma-server-monit/model/DayDate';
+    import { LoggerFile } from 'atma-server-monit/fs/LoggerFile';
+    import { ICsvColumn } from "atma-server-monit/model/ICsvColumn";
+    type FileType = InstanceType<typeof File>;
+    export interface IFileQuery {
+        offset?: number;
+        limit?: number;
+        from?: Date;
+        to?: Date;
+    }
+    export class FileReader {
+        channel: LoggerFile;
+        uri: string;
+        idxFile?: FileType;
+        day: DayDate;
+        nr: number;
+        fields: ICsvColumn[];
+        cached: boolean;
+        table: any[][];
+        static create(channel: LoggerFile, uri: string, idxFile?: FileType): FileReader;
+        protected constructor(channel: LoggerFile, uri: string, idxFile?: FileType);
+        read(): Promise<any[][]>;
+        fetch(opts: IFileQuery): Promise<{
+            total: number;
+            rows: any[][];
+        }>;
+    }
+    export namespace Csv {
+        function parseType(val: string, field: ICsvColumn): string | number | Date;
+        function splitRow(row: string): any[];
+    }
+    export {};
+}
+
+declare module 'atma-server-monit/reader/LogsReader' {
+    import { ICsvColumn } from 'atma-server-monit/model/ICsvColumn'; 
+     import { MonitWorker } from 'atma-server-monit/MonitWorker';
+    import { ITableColumnFilter } from 'atma-server-monit/model/Table';
+    import { DayDate } from 'atma-server-monit/model/DayDate';
+    export class LogsReader {
+            monit: MonitWorker;
+            constructor(monit: MonitWorker);
+            getChannels(): {
+                    name: string;
+                    directory: string;
+                    columns: ICsvColumn[];
+            }[];
+            getChannelInfo(key: string): {
+                    name: string;
+                    directory: string;
+                    columns: ICsvColumn[];
+            };
+            getChannelDays(key: string): Promise<{
+                    day: string;
+            }[]>;
+            getChannelData(query: GetChannelParams): Promise<{
+                    columns: ICsvColumn[];
+                    rows: any[][];
+                    size: number;
+            }>;
+    }
+    export class GetChannelParams {
+            key: string;
+            sortByColumnIdx?: number;
+            sortDir?: 'asc' | 'desc';
+            columnFilters?: ITableColumnFilter[];
+            day: DayDate;
+            rangeStart?: Date;
+            rangeEnd?: Date;
+            offset?: number;
+            limit?: number;
+    }
+}
+
+declare module 'atma-server-monit/model/DayDate' {
+    export class DayDate implements IDay {
+        year: number;
+        date: number;
+        month: number;
+        constructor(year: number, month: number, date: number);
+        constructor(str: string);
+        constructor(day: IDay);
+        constructor(date: Date);
+        toDate(): Date;
+        isEqual(date: DayDate): boolean;
+        isSame(date: Date): boolean;
+        isAfter(date: Date): boolean;
+        isBefore(date: Date): boolean;
+        valueOf(): number;
+        format(pattern: any): any;
+        serialize(): string;
+        getFullYear(): number;
+        getMonth(): number;
+        getDate(): number;
+        getHours(): number;
+        getMinutes(): number;
+        getSeconds(): number;
+        static now(): DayDate;
+    }
+    export interface IDay {
+        year: number;
+        date: number;
+        month: number;
+    }
+}
+
+declare module 'atma-server-monit/model/Table' {
+    import { ICsvColumn } from 'atma-server-monit/model/ICsvColumn';
+    export interface ITableQuery {
+        sortByColumnIdx?: number;
+        sortDir?: 'asc' | 'desc';
+        columnFilters?: ITableColumnFilter[];
+        rangeStart?: Date;
+        rangeEnd?: Date;
+        offset?: number;
+        limit?: number;
+    }
+    export interface ITableColumnFilter {
+        columnIdx: number;
+        q: string;
+    }
+    export class Table {
+        rows: any[][];
+        dateIdx: number;
+        size: number;
+        constructor(fields: ICsvColumn[], rows: any[][]);
+        getTable(params: ITableQuery): any[][];
     }
 }
 

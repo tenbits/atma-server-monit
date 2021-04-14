@@ -1,11 +1,8 @@
-import { MonitWorker } from '../../src/MonitWorker';
-import { Json, Rule } from 'class-json';
-import alot from 'alot';
-import { DirectoryReader } from './DirectoryReader';
-import { Table, ITableColumnFilter } from '../../src/model/Table';
-import { ICsvColumn } from '../../src/model/ICsvColumn';
+import { MonitWorker } from '../MonitWorker';
+import { ITableColumnFilter } from '../model/Table';
 import { ChannelReader } from './ChannelReader';
-import { DayDate } from '../../src/model/DayDate';
+import { DayDate } from '../model/DayDate';
+import { Json, Rule } from 'class-json';
 
 export class LogsReader {
     constructor (public monit: MonitWorker) {
