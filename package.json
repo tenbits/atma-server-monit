@@ -1,6 +1,6 @@
 {
     "name": "atma-server-monit",
-    "version": "1.0.36",
+    "version": "1.0.37",
     "description": "Application Monitor Layer",
     "author": "Alex Kit (alex.kit@atmajs.com)",
     "main": "lib/index.js",
@@ -84,7 +84,7 @@
         "@slack/web-api": "^5.8.0",
         "alot": "^0.2.84",
         "atma-formatter": "^0.8.15",
-        "atma-io": "^1.2.36",
+        "atma-io": "^1.2.37",
         "atma-loader-ts": "^1.1.12",
         "atma-utils": "^0.1.37",
         "class-json": "^0.3.3",

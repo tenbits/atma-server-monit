@@ -178,7 +178,11 @@ export class MonitWorker {
 
     async restoreChannelsAsync() {
         let channels = Object.keys(this.loggers);
-        let directoryExists = await Directory.existsAsync(this.opts.directory);
+        let directoryExists = false;
+        try {
+            directoryExists = await Directory.existsAsync(this.opts.directory);
+        } catch (error) { }
+
         if (directoryExists === true) {
             let files = await dir_readAsync(this.opts.directory);
             await alot(files).forEachAsync(async dirName => {
