@@ -7,6 +7,7 @@ import { Csv } from './utils/csv';
 import { Err } from './utils/err';
 import { dir_readAsync } from './fs/fs';
 import { ChannelReader } from './reader/ChannelReader';
+import { Directory } from 'atma-io';
 
 
 export interface IMonitOptions {
@@ -177,20 +178,21 @@ export class MonitWorker {
 
     async restoreChannelsAsync() {
         let channels = Object.keys(this.loggers);
-        let files = await dir_readAsync(this.opts.directory);
-        await alot(files).forEachAsync(async dirName => {
-            if (channels.some(name => name === dirName)) {
-                return;
-            }
-            let channel = await LoggerFile.restore(
-                this.opts.directory,
-                dirName,
-                this.opts.channels?.[dirName]
-            );
-            this.loggers[dirName] = channel;
-        }).toArrayAsync();
-
-
+        let directoryExists = await Directory.existsAsync(this.opts.directory);
+        if (directoryExists === true) {
+            let files = await dir_readAsync(this.opts.directory);
+            await alot(files).forEachAsync(async dirName => {
+                if (channels.some(name => name === dirName)) {
+                    return;
+                }
+                let channel = await LoggerFile.restore(
+                    this.opts.directory,
+                    dirName,
+                    this.opts.channels?.[dirName]
+                );
+                this.loggers[dirName] = channel;
+            }).toArrayAsync();
+        }
         if (this.opts.channels) {
             for (let key in this.opts.channels) {
                 if (key in this.loggers === false) {
