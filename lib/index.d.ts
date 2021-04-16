@@ -9,12 +9,12 @@ declare module 'atma-server-monit' {
     import { Application } from 'atma-server';
     import { IMonitOptions } from 'atma-server-monit/MonitWorker';
     import { ILoggerOpts, EmptyLoggerFile, LoggerFile } from 'atma-server-monit/fs/LoggerFile';
-    import { ChannelReader } from 'atma-server-monit/reader/ChannelReader';
     export namespace Monit {
         function startLogger(opts: IMonitOptions): Promise<void>;
         function start(app: Application, opts: IMonitOptions): void;
         function createChannel(name: string, opts?: Partial<ILoggerOpts>): EmptyLoggerFile | LoggerFile;
-        function createChannelReader(name: string, opts?: Partial<ILoggerOpts>): ChannelReader;
+        function createChannelReader(channel: LoggerFile): any;
+        function createChannelReader(name: string, opts?: Partial<ILoggerOpts>): any;
         function flush(): void;
         function error(error: Error): void;
     }
@@ -100,6 +100,24 @@ declare module 'atma-server-monit/fs/LoggerFile' {
     }
 }
 
+declare module 'atma-server-monit/Slack' {
+    import { WebClient } from '@slack/web-api';
+    export class SlackClient {
+        access_token: string;
+        team_id: string;
+        enterprise_id: string;
+        web: WebClient;
+        token: string;
+        channelId: string;
+        constructor(opts: {
+            token: string;
+            channelId: string;
+        });
+        login(): Promise<void>;
+        send(message: string): Promise<void>;
+    }
+}
+
 declare module 'atma-server-monit/reader/ChannelReader' {
     import { FileReader } from 'atma-server-monit/reader/FileReader'; 
      import { LoggerFile } from 'atma-server-monit/fs/LoggerFile';
@@ -126,24 +144,6 @@ declare module 'atma-server-monit/reader/ChannelReader' {
                     size: number;
             }>;
             protected getReaders(): Promise<FileReader[]>;
-    }
-}
-
-declare module 'atma-server-monit/Slack' {
-    import { WebClient } from '@slack/web-api';
-    export class SlackClient {
-        access_token: string;
-        team_id: string;
-        enterprise_id: string;
-        web: WebClient;
-        token: string;
-        channelId: string;
-        constructor(opts: {
-            token: string;
-            channelId: string;
-        });
-        login(): Promise<void>;
-        send(message: string): Promise<void>;
     }
 }
 

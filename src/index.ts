@@ -73,11 +73,23 @@ export namespace Monit {
     export function createChannel (name: string, opts?: Partial<ILoggerOpts>) {
         return monit?.createChannel(name, opts) ?? new EmptyLoggerFile();
     }
-    export function createChannelReader (name: string, opts?: Partial<ILoggerOpts>) {
-        let channel = LoggerFile.create(name, {
-            directory: null,
-            ...opts
-        });
+
+    export function createChannelReader (channel: LoggerFile)
+    export function createChannelReader (name: string, opts?: Partial<ILoggerOpts>)
+    export function createChannelReader (mix: string | LoggerFile, opts?: Partial<ILoggerOpts>) {
+        let channel: LoggerFile = null;
+        if (typeof mix === 'string') {
+            if (opts?.directory == null) {
+                throw new Error(`Set the root directory to read the logs from`);
+            }
+            channel = LoggerFile.create(mix, {
+                directory: null,
+                ...opts
+            });
+        } else {
+            channel = mix;
+        }
+
         return new ChannelReader(channel);
     }
     export function flush () {
