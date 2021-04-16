@@ -1,6 +1,6 @@
 import { Application } from 'atma-server'
 import { MonitWorker, IMonitOptions } from './MonitWorker';
-import { ILoggerOpts, EmptyLoggerFile, LoggerFile } from './fs/LoggerFile';
+import { ILoggerOpts, EmptyLoggerFile, LoggerFile, ILogger } from './fs/LoggerFile';
 import { class_Uri } from 'atma-utils';
 import { ChannelReader } from './reader/ChannelReader';
 
@@ -70,7 +70,7 @@ export namespace Monit {
         };
         app.handlers.registerSubApp('atma/monit', subApp, null);
     }
-    export function createChannel (name: string, opts?: Partial<ILoggerOpts>) {
+    export function createChannel (name: string, opts?: Partial<ILoggerOpts>): ILogger {
         return monit?.createChannel(name, opts) ?? new EmptyLoggerFile();
     }
 

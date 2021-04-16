@@ -4,7 +4,7 @@ import * as Path from 'path'
 import  * as Formatter from 'atma-formatter'
 import { date_getMidnight } from '../utils/date';
 import { class_Uri } from 'atma-utils';
-import { File } from 'atma-io';
+import { Directory, File } from 'atma-io';
 import { Csv } from '../utils/csv';
 import { ICsvColumn } from '../model/ICsvColumn';
 
@@ -25,6 +25,7 @@ export interface ILogger {
     writeRow (cells: any[])
     write(mix: string | any[]): void
     flush ()
+    removeAll (): Promise<any>
 }
 
 export class EmptyLoggerFile implements ILogger {
@@ -36,6 +37,9 @@ export class EmptyLoggerFile implements ILogger {
     }
     flush() {
 
+    }
+    removeAll () {
+        return null;
     }
 }
 export class LoggerFile implements ILogger {
@@ -136,9 +140,16 @@ export class LoggerFile implements ILogger {
         this.flushSync();
     }
 
+    async removeAll() {
+        if (this.directory) {
+            await Directory.removeAsync(this.directory);
+        }
+        return null;
+    }
+
     protected initOptions (opts: ILoggerOpts) {
         this.opts = opts;
-        if (opts.directory.startsWith('./')) {
+        if (/^(\.?\/)/.test(opts.directory)) {
             opts.directory = Path.resolve(process.cwd(), opts.directory);
         }
         if (opts.fileCountMax == null) {

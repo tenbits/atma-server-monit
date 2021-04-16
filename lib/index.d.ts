@@ -8,11 +8,11 @@
 declare module 'atma-server-monit' {
     import { Application } from 'atma-server';
     import { IMonitOptions } from 'atma-server-monit/MonitWorker';
-    import { ILoggerOpts, EmptyLoggerFile, LoggerFile } from 'atma-server-monit/fs/LoggerFile';
+    import { ILoggerOpts, LoggerFile, ILogger } from 'atma-server-monit/fs/LoggerFile';
     export namespace Monit {
         function startLogger(opts: IMonitOptions): Promise<void>;
         function start(app: Application, opts: IMonitOptions): void;
-        function createChannel(name: string, opts?: Partial<ILoggerOpts>): EmptyLoggerFile | LoggerFile;
+        function createChannel(name: string, opts?: Partial<ILoggerOpts>): ILogger;
         function createChannelReader(channel: LoggerFile): any;
         function createChannelReader(name: string, opts?: Partial<ILoggerOpts>): any;
         function flush(): void;
@@ -77,11 +77,13 @@ declare module 'atma-server-monit/fs/LoggerFile' {
         writeRow(cells: any[]): any;
         write(mix: string | any[]): void;
         flush(): any;
+        removeAll(): Promise<any>;
     }
     export class EmptyLoggerFile implements ILogger {
         writeRow(cells: any[]): void;
         write(mix: string | any[]): void;
         flush(): void;
+        removeAll(): any;
     }
     export class LoggerFile implements ILogger {
         directory: string;
@@ -95,6 +97,7 @@ declare module 'atma-server-monit/fs/LoggerFile' {
         write(mix: string | any[]): void;
         get path(): string;
         flush(): void;
+        removeAll(): Promise<any>;
         protected initOptions(opts: ILoggerOpts): void;
         protected init(): void;
     }
