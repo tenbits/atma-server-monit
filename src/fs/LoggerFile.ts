@@ -142,7 +142,7 @@ export class LoggerFile implements ILogger {
 
     async removeAll() {
         if (this.directory) {
-            await Directory.removeAsync(this.directory);
+            await Directory.removeAsync(class_Uri.combine(this.directory, '/'));
         }
         return null;
     }
@@ -208,7 +208,7 @@ export class LoggerFile implements ILogger {
         if (files.length >= this.opts.fileCountMax) {
             files
                 .slice(0, files.length - this.opts.fileCountMax + 1)
-                .forEach(function (filename) {
+                .forEach((filename) => {
                     file_remove(Path.resolve(this.directory, filename));
                 });
         }
