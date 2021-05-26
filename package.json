@@ -1,6 +1,6 @@
 {
     "name": "atma-server-monit",
-    "version": "1.0.40",
+    "version": "1.0.41",
     "description": "Application Monitor Layer",
     "author": "Alex Kit (alex.kit@atmajs.com)",
     "main": "lib/index.js",
@@ -17,7 +17,7 @@
         "url": "https://github.com/tenbits/atma-loader-ts"
     },
     "peerDependencies": {
-        "atma-server": "^0.4.86"
+        "atma-server": ">0.4.86"
     },
     "devDependencies": {
         "@types/node": "^10.17.17",
