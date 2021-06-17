@@ -7,7 +7,7 @@
     },
     "dependencies": {
         "alot": "^0.2.81",
-        "axios": "^0.19.2",
+        "axios": "^0.21.1",
         "compo-views": "^0.10.44",
         "includejs": "^0.15.43",
         "jquery": "^3.5.0",
