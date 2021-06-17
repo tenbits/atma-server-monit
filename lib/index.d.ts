@@ -71,6 +71,7 @@ declare module 'atma-server-monit/fs/LoggerFile' {
         messageBufferMax?: number;
         writeTimeout?: number;
         fields?: ICsvColumn[];
+        addCsvHeader?: boolean;
         columns?: ICsvColumn[];
     }
     export interface ILogger {
@@ -183,6 +184,7 @@ declare module 'atma-server-monit/reader/FileReader' {
         fields: ICsvColumn[];
         cached: boolean;
         table: any[][];
+        hasHeader: boolean;
         static create(channel: LoggerFile, uri: string, idxFile?: FileType): FileReader;
         protected constructor(channel: LoggerFile, uri: string, idxFile?: FileType);
         read(): Promise<any[][]>;
@@ -230,7 +232,7 @@ declare module 'atma-server-monit/reader/LogsReader' {
             sortByColumnIdx?: number;
             sortDir?: 'asc' | 'desc';
             columnFilters?: ITableColumnFilter[];
-            day: DayDate;
+            day?: DayDate;
             rangeStart?: Date;
             rangeEnd?: Date;
             offset?: number;

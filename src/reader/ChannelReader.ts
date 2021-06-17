@@ -77,7 +77,7 @@ export class ChannelReader {
         }
 
         let channel = this.channel;
-        let fields: ICsvColumn[] = channel.opts.fields ?? (channel.opts as any).columns;
+        let fields: ICsvColumn[] = channel.opts.fields ?? channel.opts.columns;
 
         let directory = DirectoryReader.create(channel)
         let readers = await directory.readFiles();

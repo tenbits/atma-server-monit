@@ -7,6 +7,8 @@ import { class_Uri } from 'atma-utils';
 import { Directory, File } from 'atma-io';
 import { Csv } from '../utils/csv';
 import { ICsvColumn } from '../model/ICsvColumn';
+import { LoggerFileHeader } from './LoggerFileHeader';
+import { LoggerFileRow } from './LoggerFileRow';
 
 
 export interface ILoggerOpts {
@@ -17,6 +19,8 @@ export interface ILoggerOpts {
     messageBufferMax?: number
     writeTimeout?: number
     fields?: ICsvColumn[]
+
+    addCsvHeader?: boolean
 
     //@obsolete Use fields
     columns?: ICsvColumn[]
@@ -55,8 +59,14 @@ export class LoggerFile implements ILogger {
     private _initialized = false;
 
     static create (key: string, opts: ILoggerOpts) {
+        // @BackComp in case key is already a part of a directory
+        let hasKeyInPath = new RegExp(`${key}/?$`).test(opts.directory ?? '');
+
         let logger = new LoggerFile({
             ...opts,
+            directory: hasKeyInPath
+                ? class_Uri.combine(opts.directory, '/')
+                : class_Uri.combine(opts.directory, key, '/'),
         });
         return logger;
     }
@@ -93,11 +103,11 @@ export class LoggerFile implements ILogger {
     }
 
     writeRow (cells: any[]) {
-        let row = this.serializeRow(cells);
+        let row = LoggerFileRow.serialize(cells, this.opts.fields);
         this.write(row);
     }
     writeRows (cellsMany: any[][]) {
-        let rows = cellsMany.map(cells => this.serializeRow(cells));
+        let rows = cellsMany.map(cells => LoggerFileRow.serialize(cells, this.opts.fields));
         this.write(rows.join('\n'));
     }
     write(mix: string | any[]): void {
@@ -226,33 +236,16 @@ export class LoggerFile implements ILogger {
 
         const d = new Date();
         // TIMESTAMP_FILECOUNTER_READABLETIME
-        const filename = `${ d.getTime() }_${this._idx}__${Formatter(d, 'MM-dd-yyyy')}.csv`;
+        const filename = `${ d.getTime() }_${this._idx}__${Formatter(d, 'yyyy-MM-dd')}.csv`;
         const path = Path.resolve(this.opts.directory, filename);
-        return new FileHandler(path, this.opts);
-    }
-    private serializeRow (cells: any[]) {
-        let fields = this.opts.fields;
-        if (fields == null) {
-            let row = cells.map(Csv.escape).join(', ');
-            return row;
-        }
-        let row = '';
-        for (let i = 0; i < fields.length; i++) {
-            if (i !== 0) row += ', ';
+        const file = new FileHandler(path, this.opts);
 
-            let val = cells[i];
-            if (val instanceof Date) {
-                row += val.toISOString();
-                continue;
-            }
-            if (typeof val === 'number') {
-                row += val;
-                continue;
-            }
-            row += Csv.escape(val);
+        if (this.opts.addCsvHeader) {
+            file.write(LoggerFileHeader.serialize(this.opts));
         }
-        return row;
+        return file;
     }
+
     private onTimeout () {
         this.flushAsync();
     }

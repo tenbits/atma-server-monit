@@ -18,7 +18,7 @@ UTest({
                 { name: 'Date', type: 'date' },
                 { name: 'Message', type: 'string' },
             ],
-            directory: './test/fixtures/foo'
+            directory: './test/fixtures'
         });
 
         let file = new File('./test/fixtures/foo/1614761176387_0__03-03.csv');
@@ -37,7 +37,7 @@ UTest({
                 { name: 'Date', type: 'date' },
                 { name: 'Message', type: 'string' },
             ],
-            directory: './test/fixtures/foo'
+            directory: './test/fixtures'
         });
 
         let resultAll = await reader.fetch({});

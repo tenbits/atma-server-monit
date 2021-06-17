@@ -1,4 +1,5 @@
-import { LogsReader } from '../www/server/LogsReader'
+
+import { LogsReader } from '../src/reader/LogsReader';
 import { MonitWorker } from '../src/MonitWorker'
 
 UTest({
@@ -6,6 +7,7 @@ UTest({
         let monit = new MonitWorker(null, {
             directory: './test/fixtures/'
         });
+
         let reader = new LogsReader(monit)
 
         let data = await reader.getChannelData({

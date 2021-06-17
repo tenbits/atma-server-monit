@@ -1,10 +1,10 @@
-import memd from 'memd';
 import alot from 'alot';
 import { File } from 'atma-io';
 import { DayDate } from '../model/DayDate';
 import { LoggerFile } from '../fs/LoggerFile';
 import { ICsvColumn } from "../model/ICsvColumn";
 import { FileIndex, Idx_LINE_END, Idx_LINE_START, IFileIndex } from './FileIndex';
+import { LoggerFileHeader } from '../fs/LoggerFileHeader';
 
 const cache = new Map<string, FileReader>();
 
@@ -26,6 +26,7 @@ export class FileReader {
     fields: ICsvColumn[]
     cached = true
     table: any[][] = null;
+    hasHeader: boolean
 
     static create (channel: LoggerFile, uri: string, idxFile?: FileType) {
         if (cache.has(uri)) {
@@ -38,10 +39,14 @@ export class FileReader {
 
     protected constructor(public channel: LoggerFile, public uri: string, public idxFile?: FileType) {
         this.fields = channel.opts?.fields ?? channel.opts?.columns;
+        this.hasHeader = channel.opts?.addCsvHeader ?? false;
 
         // const filename = `${ d.getTime() }_${this._idx}__${Formatter(d, 'MM-dd')}.csv`;
+        let rgxV2 = /(?<nr>\d+)__(?<YYYY>\d{4})\-(?<MM>\d{2})\-(?<dd>\d{2})/;
+
+        // obsolete
         let rgx = /(?<nr>\d+)__(?<MM>\d+)\-(?<dd>\d+)(\-(?<YYYY>\d+))?/;
-        let match = rgx.exec(uri);
+        let match = rgxV2.exec(uri) ?? rgx.exec(uri);
         if (match == null) {
             throw new Error(`Invalid filename pattern: ${uri}`);
         }
@@ -67,7 +72,7 @@ export class FileReader {
         }
 
         let str = await this._file.readAsync<string>();
-        let table = this.parse(str);
+        let { rows: table } = this.parse(str);
         if (this.day.isSame(new Date()) === false) {
             // Cache everything, but not for today
             this.table = table;
@@ -89,7 +94,7 @@ export class FileReader {
         let end = alot(lines).max(x => x[Idx_LINE_END]);
 
         let block = await this._file.readRangeAsync(start, end - start);
-        let rows = this.parse(block);
+        let { rows } = this.parse(block);
         return {
             total,
             rows
@@ -98,7 +103,7 @@ export class FileReader {
 
     //@memd.deco.memoize()
     private async readIndex (): Promise<IFileIndex> {
-        if (this.idxFile) {
+        if (this.idxFile && await this.idxFile.existsAsync()) {
             return await this.idxFile.readAsync<IFileIndex>();
         }
         let isActiveFile = this.channel.path?.endsWith(this._file.uri.file) ?? false;
@@ -115,19 +120,37 @@ export class FileReader {
             NEW_LINE = '\r\n';
         }
 
-        let rows = str.split(NEW_LINE).reverse().map(row => {
+        let hasHeader = str[0] === LoggerFileHeader.SYMBOL;
+        let arr = str.split(NEW_LINE);
+        let fieldsFromCsv: ICsvColumn[];
+        if (hasHeader === true) {
+            let headerRow = arr[0].substring(1);
+            let headers = Csv.splitRow(headerRow)
+            fieldsFromCsv = LoggerFileHeader.parse(headers);
+            arr = arr.slice(1);
+        }
+
+        if (this.fields == null) {
+            this.fields = fieldsFromCsv;
+        }
+
+        let fields = this.fields;
+        let rows = arr.reverse().map(row => {
             if (row === '') {
                 return null;
             }
             let cells = Csv.splitRow(row);
-            if (this.fields == null) {
+            if (fields == null) {
                 return cells;
             }
-            return this.fields.map((field, index) => {
+            return fields.map((field, index) => {
                 return Csv.parseType(cells[index], field);
             });
         });
-        return rows.filter(Boolean);
+        return {
+            rows: rows.filter(Boolean),
+            fields: fieldsFromCsv,
+        };
     }
 }
 

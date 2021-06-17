@@ -1,6 +1,6 @@
 {
     "name": "atma-server-monit",
-    "version": "1.0.41",
+    "version": "1.0.42",
     "description": "Application Monitor Layer",
     "author": "Alex Kit (alex.kit@atmajs.com)",
     "main": "lib/index.js",
@@ -10,7 +10,8 @@
         "watch": "app-bundler --watch",
         "example": "node examples/server --TEST --debug --monit.pss foo",
         "release": "echo atma pub -m \"Message\"",
-        "build-dts": "tsc --version && tsc -p tsconfig-build.json && atma run tools/build-dts"
+        "build-dts": "tsc --version && tsc -p tsconfig-build.json && atma run tools/build-dts",
+        "test": "atma test"
     },
     "repository": {
         "type": "git",

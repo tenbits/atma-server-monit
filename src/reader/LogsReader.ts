@@ -62,7 +62,7 @@ export class GetChannelParams {
     columnFilters?: ITableColumnFilter[]
 
     @Json.type(DayDate)
-    day: DayDate
+    day?: DayDate
 
     @Json.type(Date)
     rangeStart?: Date
